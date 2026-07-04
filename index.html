@@ -4,6 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>GitaVaani — The Voice of the Gita</title>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <style>
 @import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,500;0,600;0,700;1,600&family=Mukta:wght@400;500;600;700&display=swap');
 
@@ -18,6 +19,7 @@
   --ivory:#F3EFE3;
   --muted:#9AA1C4;
   --line:rgba(201,162,39,0.25);
+  --danger:#E8607A;
 }
 
 *{margin:0;padding:0;box-sizing:border-box;}
@@ -34,7 +36,7 @@ body::before{
 .stars{
   position:fixed;inset:0;z-index:0;pointer-events:none;
   background-image:
-    radial-gradient(1px 1px at 10% 20%, rgba(255,255,255,0.5), transparent),  
+    radial-gradient(1px 1px at 10% 20%, rgba(255,255,255,0.5), transparent),
     radial-gradient(1px 1px at 80% 30%, rgba(255,255,255,0.4), transparent),
     radial-gradient(1.5px 1.5px at 30% 70%, rgba(255,255,255,0.4), transparent),
     radial-gradient(1px 1px at 60% 85%, rgba(255,255,255,0.3), transparent),
@@ -55,16 +57,24 @@ nav{display:flex;align-items:center;justify-content:space-between;padding:16px 2
 .feather-sway{transform-origin:50px 50px;animation:feathersway 3.5s ease-in-out infinite;}
 @keyframes feathersway{0%,100%{transform:rotate(-6deg);}50%{transform:rotate(6deg);}}
 .nav-links{display:flex;gap:32px;align-items:center;font-size:0.95rem;}
-.nav-links a{color:var(--muted);transition:color .2s;}
+.nav-links a{color:var(--muted);transition:color .2s;position:relative;}
+.nav-links a::after{content:"";position:absolute;left:0;bottom:-4px;width:0;height:1px;background:var(--gold-soft);transition:width .25s ease;}
 .nav-links a:hover{color:var(--gold-soft);}
+.nav-links a:hover::after{width:100%;}
 .nav-actions{display:flex;gap:12px;align-items:center;}
-.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;padding:10px 22px;border-radius:999px;font-weight:600;font-size:0.9rem;cursor:pointer;border:1px solid transparent;transition:transform .2s, box-shadow .2s, background .2s;font-family:'Mukta',sans-serif;}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;padding:10px 22px;border-radius:999px;font-weight:600;font-size:0.9rem;cursor:pointer;border:1px solid transparent;transition:transform .2s cubic-bezier(.2,.8,.2,1), box-shadow .2s, background .2s, border-color .2s;font-family:'Mukta',sans-serif;}
 .btn-primary{background:linear-gradient(135deg,var(--saffron),var(--gold));color:#1a1204;}
 .btn-primary:hover{transform:translateY(-2px);box-shadow:0 8px 24px rgba(232,131,74,0.35);}
+.btn-primary:active{transform:translateY(0);}
+.btn-primary:disabled{opacity:0.55;cursor:not-allowed;transform:none;box-shadow:none;}
 .btn-ghost{border-color:var(--line);color:var(--ivory);background:transparent;}
 .btn-ghost:hover{border-color:var(--gold);color:var(--gold-soft);}
+.btn-sm{padding:8px 16px;font-size:0.82rem;}
 .hamburger{display:none;flex-direction:column;gap:5px;cursor:pointer;background:none;border:none;}
 .hamburger span{width:24px;height:2px;background:var(--ivory);}
+.user-chip{display:flex;align-items:center;gap:10px;padding:6px 8px 6px 6px;border:1px solid var(--line);border-radius:999px;background:rgba(255,255,255,0.03);}
+.user-chip .avatar{width:30px;height:30px;border-radius:50%;background:linear-gradient(135deg,var(--peacock),var(--gold));display:flex;align-items:center;justify-content:center;font-family:'Cormorant Garamond',serif;font-weight:700;color:#0B1130;font-size:0.95rem;}
+.user-chip .uname{font-size:0.88rem;color:var(--ivory);}
 
 /* HERO */
 .hero{position:relative;padding:90px 0 70px;}
@@ -79,8 +89,9 @@ nav{display:flex;align-items:center;justify-content:space-between;padding:16px 2
 .krishna-frame img{width:100%;height:100%;object-fit:cover;}
 .krishna-frame .krishna-fallback{width:70%;height:70%;opacity:0.9;}
 .chakra{position:absolute;width:400px;height:400px;animation:spin 18s linear infinite;}
-.chakra-glow{position:absolute;width:420px;height:420px;border-radius:50%;background:radial-gradient(circle, rgba(201,162,39,0.18), transparent 65%);}
+.chakra-glow{position:absolute;width:420px;height:420px;border-radius:50%;background:radial-gradient(circle, rgba(201,162,39,0.18), transparent 65%);animation:breathe 4.5s ease-in-out infinite;}
 @keyframes spin{from{transform:rotate(0deg);}to{transform:rotate(360deg);}}
+@keyframes breathe{0%,100%{opacity:0.7;transform:scale(1);}50%{opacity:1;transform:scale(1.05);}}
 
 @media (prefers-reduced-motion:reduce){
   .chakra{animation:none;}
@@ -119,26 +130,18 @@ section{padding:90px 0;position:relative;}
 .live-card h3{font-size:1.4rem;color:var(--ivory);margin-bottom:6px;}
 .live-meta{color:var(--muted);font-size:0.9rem;margin-bottom:18px;}
 .shankha-icon{width:22px;height:22px;}
+.empty-note{color:var(--muted);font-size:0.9rem;padding:18px 0;}
 
 .schedule-form{margin-top:50px;background:var(--bg-panel-2);border:1px solid var(--line);border-radius:16px;padding:32px;}
 .schedule-form h3{color:var(--gold-soft);margin-bottom:6px;font-size:1.3rem;}
 .schedule-form .hint{color:var(--muted);font-size:0.85rem;margin-bottom:20px;}
 .form-row{display:grid;grid-template-columns:1fr 1fr 1fr;gap:14px;margin-bottom:16px;}
-input,select{width:100%;padding:12px 14px;border-radius:10px;border:1px solid var(--line);background:rgba(255,255,255,0.03);color:var(--ivory);font-family:'Mukta',sans-serif;font-size:0.95rem;}
+input,select{width:100%;padding:12px 14px;border-radius:10px;border:1px solid var(--line);background:rgba(255,255,255,0.03);color:var(--ivory);font-family:'Mukta',sans-serif;font-size:0.95rem;transition:border-color .2s, box-shadow .2s;}
 input::placeholder{color:var(--muted);}
-input:focus,select:focus{outline:2px solid var(--gold);outline-offset:1px;}
+input:focus,select:focus{outline:none;border-color:var(--gold);box-shadow:0 0 0 3px rgba(201,162,39,0.15);}
+label.field-label{display:block;font-size:0.8rem;color:var(--muted);margin-bottom:6px;}
 
 /* LIBRARY */
-.lib-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:22px;}
-.lib-card{background:var(--bg-panel);border:1px solid var(--line);border-radius:14px;overflow:hidden;transition:transform .25s;}
-.lib-card:hover{transform:translateY(-4px);}
-.lib-thumb{height:140px;background:linear-gradient(135deg, rgba(45,140,136,0.35), rgba(201,162,39,0.25));display:flex;align-items:center;justify-content:center;position:relative;}
-.play-circle{width:48px;height:48px;border-radius:50%;background:rgba(11,17,48,0.6);border:1px solid var(--gold);display:flex;align-items:center;justify-content:center;}
-.lib-body{padding:18px;}
-.lib-body h4{font-size:1.05rem;color:var(--ivory);margin-bottom:4px;font-family:'Mukta',sans-serif;font-weight:600;}
-.lib-body span{font-size:0.85rem;color:var(--muted);}
-.lock-tag{position:absolute;top:10px;right:10px;background:rgba(11,17,48,0.7);border:1px solid var(--gold);color:var(--gold-soft);font-size:0.7rem;padding:3px 9px;border-radius:999px;}
-
 .trial-demo{margin-top:40px;background:var(--bg-panel-2);border:1px dashed var(--line);border-radius:16px;padding:28px;display:flex;align-items:center;justify-content:space-between;gap:24px;flex-wrap:wrap;}
 .trial-demo .timer{font-size:2.2rem;font-family:'Cormorant Garamond',serif;color:var(--gold-soft);}
 .trial-demo .label{color:var(--muted);font-size:0.85rem;}
@@ -181,7 +184,7 @@ footer .mini-chakra{width:24px;height:24px;margin:0 auto 12px;opacity:0.6;}
 /* MODAL */
 .modal-overlay{position:fixed;inset:0;background:rgba(6,9,26,0.75);backdrop-filter:blur(4px);display:none;align-items:center;justify-content:center;z-index:200;padding:20px;}
 .modal-overlay.open{display:flex;}
-.modal{background:var(--bg-panel);border:1px solid var(--line);border-radius:18px;width:100%;max-width:420px;padding:34px;position:relative;}
+.modal{background:var(--bg-panel);border:1px solid var(--line);border-radius:18px;width:100%;max-width:440px;padding:34px;position:relative;max-height:90vh;overflow-y:auto;}
 .modal-close{position:absolute;top:16px;right:18px;background:none;border:none;color:var(--muted);font-size:1.4rem;cursor:pointer;}
 .tabs{display:flex;gap:8px;margin-bottom:24px;background:rgba(255,255,255,0.04);border-radius:999px;padding:4px;}
 .tab-btn{flex:1;padding:10px;border-radius:999px;border:none;background:transparent;color:var(--muted);cursor:pointer;font-family:'Mukta',sans-serif;font-weight:600;font-size:0.9rem;}
@@ -189,6 +192,18 @@ footer .mini-chakra{width:24px;height:24px;margin:0 auto 12px;opacity:0.6;}
 .tab-panel{display:none;flex-direction:column;gap:14px;}
 .tab-panel.active{display:flex;}
 .tab-panel .btn-primary{margin-top:6px;}
+.field-2col{display:grid;grid-template-columns:1fr 1fr;gap:12px;}
+.switch-line{text-align:center;font-size:0.85rem;color:var(--muted);margin-top:4px;}
+.switch-line button{background:none;border:none;color:var(--gold-soft);font-weight:600;cursor:pointer;font-size:0.85rem;}
+.form-error{color:var(--danger);font-size:0.85rem;display:none;}
+.form-error.show{display:block;}
+.spinner{width:16px;height:16px;border-radius:50%;border:2px solid rgba(26,18,4,0.3);border-top-color:#1a1204;animation:spin 0.7s linear infinite;}
+
+/* TOASTS */
+.toast-wrap{position:fixed;bottom:24px;right:24px;z-index:300;display:flex;flex-direction:column;gap:10px;}
+.toast{background:var(--bg-panel);border:1px solid var(--gold);border-radius:12px;padding:14px 18px;font-size:0.9rem;color:var(--ivory);box-shadow:0 10px 30px rgba(0,0,0,0.4);opacity:0;transform:translateY(10px);transition:opacity .3s, transform .3s;max-width:320px;}
+.toast.show{opacity:1;transform:translateY(0);}
+.toast.error{border-color:var(--danger);}
 
 @media (max-width:860px){
   .nav-links{display:none;}
@@ -201,18 +216,21 @@ footer .mini-chakra{width:24px;height:24px;margin:0 auto 12px;opacity:0.6;}
   .sloka-card{grid-template-columns:1fr;text-align:center;padding:32px;}
   .om-spin{margin:0 auto;}
   .form-row{grid-template-columns:1fr;}
+  .field-2col{grid-template-columns:1fr;}
   .learn-wrap{grid-template-columns:1fr;}
+  .user-chip .uname{display:none;}
 }
 </style>
 </head>
 <body>
 <div class="stars"></div>
+<div class="toast-wrap" id="toastWrap"></div>
 
 <header>
   <nav>
     <div class="logo">
       <svg class="mini-chakra" viewBox="0 0 100 100"><circle cx="50" cy="50" r="44" stroke="#C9A227" stroke-width="3" fill="none"/>
-        <g class="feather-sway"><image href="peacock-feather.png" x="34" y="34" width="32" height="32"/></g>
+        <g class="feather-sway"><path d="M50 20 C 40 32, 40 48, 50 62 C 60 48, 60 32, 50 20 Z" fill="#2D8C88" opacity="0.85"/><circle cx="50" cy="22" r="3" fill="#C9A227"/></g>
       </svg>
       GitaVaani
     </div>
@@ -222,9 +240,9 @@ footer .mini-chakra{width:24px;height:24px;margin:0 auto 12px;opacity:0.6;}
       <a href="#library">Library</a>
       <a href="#subscribe">Subscribe</a>
     </div>
-    <div class="nav-actions">
-      <button class="btn btn-ghost" onclick="openModal('user')">Devotee Login</button>
-      <button class="btn btn-primary" onclick="openModal('admin')">Admin</button>
+    <div class="nav-actions" id="navActions">
+      <button class="btn btn-ghost" id="loginBtn" onclick="openModal('login')">Devotee Login</button>
+      <button class="btn btn-primary" id="signupBtn" onclick="openModal('signup')">Sign Up</button>
       <button class="hamburger" onclick="toggleMobileNav()"><span></span><span></span><span></span></button>
     </div>
   </nav>
@@ -287,8 +305,7 @@ footer .mini-chakra{width:24px;height:24px;margin:0 auto 12px;opacity:0.6;}
         </g>
       </svg>
       <div class="krishna-frame">
-        <img id="krishnaImg" src="krishna-photo.png" alt="Krishna" onerror="this.style.display='none'; document.getElementById('krishnaFallback').style.display='block';">
-        <svg id="krishnaFallback" class="krishna-fallback" viewBox="0 0 200 200" style="display:none;">
+        <svg class="krishna-fallback" viewBox="0 0 200 200">
           <path d="M100 40 C 85 60, 85 90, 100 120 C 115 90, 115 60, 100 40 Z" fill="#2D8C88" opacity="0.85"/>
           <circle cx="100" cy="42" r="6" fill="#C9A227"/>
           <path d="M60 190 C 60 140, 75 110, 100 100 C 125 110, 140 140, 140 190 Z" fill="#141B4D" stroke="#C9A227" stroke-width="1.5"/>
@@ -314,12 +331,12 @@ footer .mini-chakra{width:24px;height:24px;margin:0 auto 12px;opacity:0.6;}
       <h2>Daily Gita Sloka</h2>
       <p>A new verse every day, with a simple meaning — start your day with the wisdom of the Gita.</p>
     </div>
-    <div class="sloka-card reveal">
+    <div class="sloka-card reveal" id="slokaCard">
       <svg class="om-spin" viewBox="0 0 100 100"><circle cx="50" cy="50" r="46" stroke="#C9A227" stroke-width="1.5" fill="none" opacity="0.5"/><text x="50" y="64" text-anchor="middle" font-size="46" fill="#E4C766" font-family="serif">ॐ</text></svg>
       <div>
-        <p class="sloka-sanskrit">"karmaṇy-evādhikāras te mā phaleṣu kadācana,<br>mā karma-phala-hetur bhūr mā te saṅgo 'stv akarmaṇi"</p>
-        <p class="sloka-translit">— Bhagavad Gita, Chapter 2, Verse 47</p>
-        <p class="sloka-meaning">Meaning: You have the right to perform your actions, but never to the fruits of those actions. Do not let the results be your motive for acting, nor let attachment draw you toward inaction.</p>
+        <p class="sloka-sanskrit" id="slokaSanskrit">Loading today's verse…</p>
+        <p class="sloka-translit" id="slokaRef"></p>
+        <p class="sloka-meaning" id="slokaMeaning"></p>
         <span class="sloka-tag">🔔 A new verse every morning</span>
       </div>
     </div>
@@ -334,32 +351,18 @@ footer .mini-chakra{width:24px;height:24px;margin:0 auto 12px;opacity:0.6;}
       <p>Join live at the scheduled time, or get notified about upcoming sessions.</p>
     </div>
     <div class="live-grid reveal" id="liveGrid">
-      <div class="live-card">
-        <span class="live-badge"><span class="pulse-dot" style="width:7px;height:7px;"></span> Next Live</span>
-        <h3>Chapter 2 — Sankhya Yoga</h3>
-        <p class="live-meta">Friday · July 6 · 7:00 PM (IST)</p>
-        <button class="btn btn-ghost" style="width:100%;">🔔 Remind Me</button>
-      </div>
-      <div class="live-card">
-        <span class="live-badge" style="color:var(--peacock);">
-          <svg class="shankha-icon" viewBox="0 0 24 24"><path d="M6 18 C6 10, 12 4, 18 6 C 15 8, 13 12, 14 18 Z" fill="#2D8C88"/></svg>
-          Weekly
-        </span>
-        <h3>Tuesday Satsang</h3>
-        <p class="live-meta">Every Tuesday · 7:00 PM</p>
-        <button class="btn btn-ghost" style="width:100%;">🔔 Remind Me</button>
-      </div>
+      <p class="empty-note">Loading sessions…</p>
     </div>
 
-    <div class="schedule-form reveal">
-      <h3>🗓️ Add a New Live Session (Admin)</h3>
-      <p class="hint">This is a demo — later this will be saved securely to your server/app.</p>
+    <div class="schedule-form reveal" id="adminSessionForm" style="display:none;">
+      <h3>🗓️ Add a New Live Session</h3>
+      <p class="hint">Visible to every devotee immediately after you add it.</p>
       <div class="form-row">
         <input type="text" id="sessTitle" placeholder="Topic / Chapter name">
         <input type="date" id="sessDate">
         <input type="time" id="sessTime">
       </div>
-      <button class="btn btn-primary" onclick="addSession()">Add Session</button>
+      <button class="btn btn-primary" id="addSessionBtn" onclick="addSession()">Add Session</button>
     </div>
   </div>
 </section>
@@ -373,7 +376,6 @@ footer .mini-chakra{width:24px;height:24px;margin:0 auto 12px;opacity:0.6;}
     </div>
 
     <div class="learn-wrap reveal">
-      <!-- Player -->
       <div class="player-box">
         <video id="lessonPlayer" controls></video>
         <div class="player-empty" id="playerEmpty">
@@ -386,16 +388,15 @@ footer .mini-chakra{width:24px;height:24px;margin:0 auto 12px;opacity:0.6;}
         </div>
       </div>
 
-      <!-- Chapter tabs + lesson list -->
       <div class="learn-side">
         <div class="chapter-tabs" id="chapterTabs"></div>
-        <div class="lesson-list" id="lessonList"></div>
+        <div class="lesson-list" id="lessonList"><p class="empty-note">Loading chapters…</p></div>
       </div>
     </div>
 
-    <div class="schedule-form reveal" style="margin-top:36px;">
-      <h3>📤 Upload a New Lesson (Admin)</h3>
-      <p class="hint">Upload your voice artist's audio or video for a chapter. New lessons are added to the end of that chapter's sequence and stay locked until the devotee reaches them. This demo plays uploads from your own device for preview — connect storage later to make uploads permanent for all users.</p>
+    <div class="schedule-form reveal" id="adminLessonForm" style="margin-top:36px;display:none;">
+      <h3>📤 Upload a New Lesson</h3>
+      <p class="hint">New lessons are added to the end of that chapter's sequence and stay locked until the devotee reaches them. Files are stored permanently and playable by every devotee.</p>
       <div class="form-row" style="grid-template-columns:1fr 1fr;">
         <select id="uploadChapter"></select>
         <input type="text" id="uploadTitle" placeholder="Lesson title (e.g. Verses 1–10)">
@@ -403,7 +404,7 @@ footer .mini-chakra{width:24px;height:24px;margin:0 auto 12px;opacity:0.6;}
       <div class="form-row" style="grid-template-columns:1fr;">
         <input type="file" id="uploadFile" accept="video/*,audio/*">
       </div>
-      <button class="btn btn-primary" onclick="addLesson()">Add Lesson</button>
+      <button class="btn btn-primary" id="addLessonBtn" onclick="addLesson()"><span id="addLessonBtnText">Add Lesson</span></button>
     </div>
 
     <div class="trial-demo reveal" style="margin-top:36px;">
@@ -426,18 +427,16 @@ footer .mini-chakra{width:24px;height:24px;margin:0 auto 12px;opacity:0.6;}
       <h2 style="margin:14px 0;">Unlock the Full Vaani</h2>
       <div class="price">₹9 <span>/ month</span></div>
       <p style="color:var(--muted);max-width:480px;margin:14px auto 26px;">All chapters, every live satsang, and the daily sloka — without interruption.</p>
-      <button class="btn btn-primary" onclick="openModal('user')">Subscribe Now</button>
+      <button class="btn btn-primary" onclick="openModal('signup')">Subscribe Now</button>
     </div>
   </div>
 </section>
 
 <footer>
   <div class="container">
-    <svg class="mini-chakra" viewBox="0 0 100 100"><circle cx="50" cy="50" r="44" stroke="#C9A227" stroke-width="3" fill="none"/>
-      <g class="feather-sway"><image href="peacock-feather.png" x="34" y="34" width="32" height="32"/></g>
-    </svg>
+    <svg class="mini-chakra" viewBox="0 0 100 100"><circle cx="50" cy="50" r="44" stroke="#C9A227" stroke-width="3" fill="none"/></svg>
     <p>GitaVaani — The Voice of the Gita, for Every Devotee</p>
-    <p style="margin-top:6px;font-size:0.8rem;opacity:0.7;">© 2026 GitaVaani. This is a demo website — it will later be turned into a mobile app.</p>
+    <p style="margin-top:6px;font-size:0.8rem;opacity:0.7;">© 2026 GitaVaani.</p>
   </div>
 </footer>
 
@@ -445,131 +444,360 @@ footer .mini-chakra{width:24px;height:24px;margin:0 auto 12px;opacity:0.6;}
   <div class="modal">
     <button class="modal-close" onclick="closeModal()">&times;</button>
     <div class="tabs">
-      <button class="tab-btn active" id="tabUserBtn" onclick="switchTab('user')">Devotee Login</button>
-      <button class="tab-btn" id="tabAdminBtn" onclick="switchTab('admin')">Admin Login</button>
+      <button class="tab-btn active" id="tabSignupBtn" onclick="switchTab('signup')">Sign Up</button>
+      <button class="tab-btn" id="tabLoginBtn" onclick="switchTab('login')">Log In</button>
     </div>
-    <div class="tab-panel active" id="tabUser">
-      <input type="text" placeholder="Name">
-      <input type="tel" placeholder="Mobile Number">
-      <button class="btn btn-primary">Send OTP</button>
+
+    <div class="tab-panel active" id="tabSignup">
+      <div class="field-2col">
+        <div><label class="field-label">First name</label><input type="text" id="suFirst" placeholder="First name"></div>
+        <div><label class="field-label">Last name</label><input type="text" id="suLast" placeholder="Last name"></div>
+      </div>
+      <div class="field-2col">
+        <div><label class="field-label">Age</label><input type="number" id="suAge" placeholder="Age" min="1" max="120"></div>
+        <div><label class="field-label">Mobile number</label><input type="tel" id="suMobile" placeholder="Mobile number"></div>
+      </div>
+      <div><label class="field-label">Email</label><input type="email" id="suEmail" placeholder="Email"></div>
+      <div><label class="field-label">Password</label><input type="password" id="suPassword" placeholder="Password (min 6 characters)"></div>
+      <p class="form-error" id="suError"></p>
+      <button class="btn btn-primary" id="suSubmit" onclick="handleSignup()"><span id="suSubmitText">Create Account</span></button>
+      <p class="switch-line">Already have an account? <button onclick="switchTab('login')">Log in</button></p>
     </div>
-    <div class="tab-panel" id="tabAdmin">
-      <input type="email" placeholder="Admin email">
-      <input type="password" placeholder="Password">
-      <button class="btn btn-primary">Log In as Admin</button>
+
+    <div class="tab-panel" id="tabLogin">
+      <div><label class="field-label">Email</label><input type="email" id="liEmail" placeholder="Email"></div>
+      <div><label class="field-label">Password</label><input type="password" id="liPassword" placeholder="Password"></div>
+      <p class="form-error" id="liError"></p>
+      <button class="btn btn-primary" id="liSubmit" onclick="handleLogin()"><span id="liSubmitText">Log In</span></button>
+      <p class="switch-line">New here? <button onclick="switchTab('signup')">Create an account</button></p>
     </div>
   </div>
 </div>
 
 <script>
+/* ===================== SUPABASE SETUP ===================== */
+const SUPABASE_URL = 'https://cvtwmbadbbavwwzqivnd.supabase.co';
+const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImN2dHdtYmFkYmJhdnd3enFpdm5kIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODMxMzgzOTIsImV4cCI6MjA5ODcxNDM5Mn0.ByuBZD-uble7T1vMyAugMa7THzc3NS1UJ7S4LmYMeV4';
+const sb = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+let currentUser = null;
+let currentProfile = null;
+
+let chapters = [];   // [{id, name, order_index, lessons:[...]}]
+let liveSessions = [];
+let progressMap = {}; // lesson_id -> completed boolean
+let activeChapterId = null;
+let activeLessonId = null;
+
+/* ===================== UTIL ===================== */
+function escapeHtml(str){
+  return String(str ?? '').replace(/[&<>"']/g, m => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]));
+}
+function showToast(msg, type='info'){
+  const wrap = document.getElementById('toastWrap');
+  const el = document.createElement('div');
+  el.className = 'toast' + (type==='error' ? ' error' : '');
+  el.textContent = msg;
+  wrap.appendChild(el);
+  requestAnimationFrame(()=>el.classList.add('show'));
+  setTimeout(()=>{ el.classList.remove('show'); setTimeout(()=>el.remove(), 300); }, 4200);
+}
+function scrollToId(id){document.getElementById(id).scrollIntoView({behavior:'smooth'});}
 function toggleMobileNav(){
   const nav = document.getElementById('mobileNav');
   nav.style.display = nav.style.display === 'flex' ? 'none' : 'flex';
 }
-function scrollToId(id){document.getElementById(id).scrollIntoView({behavior:'smooth'});}
 
+/* ===================== MODAL / AUTH UI ===================== */
 function openModal(tab){
   document.getElementById('modalOverlay').classList.add('open');
   switchTab(tab);
 }
 function closeModal(){document.getElementById('modalOverlay').classList.remove('open');}
 function switchTab(tab){
-  document.getElementById('tabUser').classList.toggle('active', tab==='user');
-  document.getElementById('tabAdmin').classList.toggle('active', tab==='admin');
-  document.getElementById('tabUserBtn').classList.toggle('active', tab==='user');
-  document.getElementById('tabAdminBtn').classList.toggle('active', tab==='admin');
+  document.getElementById('tabSignup').classList.toggle('active', tab==='signup');
+  document.getElementById('tabLogin').classList.toggle('active', tab==='login');
+  document.getElementById('tabSignupBtn').classList.toggle('active', tab==='signup');
+  document.getElementById('tabLoginBtn').classList.toggle('active', tab==='login');
+}
+document.getElementById('modalOverlay').addEventListener('click', (e)=>{
+  if(e.target.id==='modalOverlay') closeModal();
+});
+
+function setBusy(btnId, textId, busy, label){
+  const btn = document.getElementById(btnId);
+  const span = document.getElementById(textId);
+  btn.disabled = busy;
+  span.innerHTML = busy ? '<span class="spinner"></span>' : label;
 }
 
-function addSession(){
-  const title = document.getElementById('sessTitle').value || 'New Satsang';
-  const date = document.getElementById('sessDate').value || 'Date to be announced';
-  const time = document.getElementById('sessTime').value || '';
+async function handleSignup(){
+  const first = document.getElementById('suFirst').value.trim();
+  const last = document.getElementById('suLast').value.trim();
+  const age = document.getElementById('suAge').value;
+  const mobile = document.getElementById('suMobile').value.trim();
+  const email = document.getElementById('suEmail').value.trim();
+  const password = document.getElementById('suPassword').value;
+  const errEl = document.getElementById('suError');
+  errEl.classList.remove('show');
+
+  if(!first || !last || !email || !password || !mobile || !age){
+    errEl.textContent = 'Please fill in every field.';
+    errEl.classList.add('show');
+    return;
+  }
+  if(password.length < 6){
+    errEl.textContent = 'Password must be at least 6 characters.';
+    errEl.classList.add('show');
+    return;
+  }
+
+  setBusy('suSubmit','suSubmitText', true);
+  const { data, error } = await sb.auth.signUp({ email, password });
+  if(error){
+    setBusy('suSubmit','suSubmitText', false, 'Create Account');
+    errEl.textContent = error.message;
+    errEl.classList.add('show');
+    return;
+  }
+
+  const userId = data.user?.id;
+  if(userId){
+    const { error: profileError } = await sb.from('profiles').insert({
+      id: userId, first_name: first, last_name: last, age: parseInt(age,10), mobile
+    });
+    if(profileError){
+      setBusy('suSubmit','suSubmitText', false, 'Create Account');
+      errEl.textContent = profileError.message;
+      errEl.classList.add('show');
+      return;
+    }
+  }
+
+  setBusy('suSubmit','suSubmitText', false, 'Create Account');
+  showToast('Welcome, ' + first + '! Your account is ready.');
+  closeModal();
+  await refreshSession();
+}
+
+async function handleLogin(){
+  const email = document.getElementById('liEmail').value.trim();
+  const password = document.getElementById('liPassword').value;
+  const errEl = document.getElementById('liError');
+  errEl.classList.remove('show');
+
+  if(!email || !password){
+    errEl.textContent = 'Please enter your email and password.';
+    errEl.classList.add('show');
+    return;
+  }
+
+  setBusy('liSubmit','liSubmitText', true);
+  const { data, error } = await sb.auth.signInWithPassword({ email, password });
+  setBusy('liSubmit','liSubmitText', false, 'Log In');
+  if(error){
+    errEl.textContent = error.message;
+    errEl.classList.add('show');
+    return;
+  }
+  showToast('Namaste, welcome back 🙏');
+  closeModal();
+  await refreshSession();
+}
+
+async function handleLogout(){
+  await sb.auth.signOut();
+  currentUser = null;
+  currentProfile = null;
+  progressMap = {};
+  renderAuthUI();
+  renderChapterTabs();
+  renderLessons();
+  showToast('Logged out.');
+}
+
+function renderAuthUI(){
+  const wrap = document.getElementById('navActions');
+  const hamburger = wrap.querySelector('.hamburger');
+  if(currentUser && currentProfile){
+    const initial = (currentProfile.first_name || '?').charAt(0).toUpperCase();
+    wrap.innerHTML = `
+      <div class="user-chip">
+        <div class="avatar">${initial}</div>
+        <span class="uname">Namaste, ${escapeHtml(currentProfile.first_name)}</span>
+      </div>
+      <button class="btn btn-ghost btn-sm" onclick="handleLogout()">Logout</button>
+    `;
+    wrap.appendChild(hamburger);
+  } else {
+    wrap.innerHTML = `
+      <button class="btn btn-ghost" onclick="openModal('login')">Devotee Login</button>
+      <button class="btn btn-primary" onclick="openModal('signup')">Sign Up</button>
+    `;
+    wrap.appendChild(hamburger);
+  }
+  document.getElementById('adminSessionForm').style.display = (currentProfile && currentProfile.is_admin) ? 'block' : 'none';
+  document.getElementById('adminLessonForm').style.display = (currentProfile && currentProfile.is_admin) ? 'block' : 'none';
+}
+
+async function refreshSession(){
+  const { data: { session } } = await sb.auth.getSession();
+  currentUser = session?.user || null;
+  if(currentUser){
+    const { data: profile } = await sb.from('profiles').select('*').eq('id', currentUser.id).single();
+    currentProfile = profile || null;
+    await loadProgress();
+  } else {
+    currentProfile = null;
+    progressMap = {};
+  }
+  renderAuthUI();
+  renderChapterTabs();
+  renderLessons();
+}
+
+sb.auth.onAuthStateChange((_event, _session) => { /* handled via refreshSession on explicit actions */ });
+
+/* ===================== DATA LOADING ===================== */
+async function loadSloka(){
+  const { data, error } = await sb.from('daily_sloka').select('*').order('sloka_date', {ascending:false}).limit(1);
+  if(error || !data || !data.length){
+    document.getElementById('slokaSanskrit').textContent = 'No verse has been added yet.';
+    return;
+  }
+  const s = data[0];
+  document.getElementById('slokaSanskrit').textContent = s.sanskrit || '';
+  document.getElementById('slokaRef').textContent = '— ' + (s.reference || '');
+  document.getElementById('slokaMeaning').textContent = 'Meaning: ' + (s.meaning || '');
+}
+
+async function loadLiveSessions(){
+  const { data, error } = await sb.from('live_sessions').select('*').order('session_date', {ascending:true}).order('session_time', {ascending:true});
   const grid = document.getElementById('liveGrid');
-  const card = document.createElement('div');
-  card.className = 'live-card';
-  card.innerHTML = `<span class="live-badge" style="color:var(--gold-soft);">✨ Newly Added</span>
-    <h3>${title}</h3>
-    <p class="live-meta">${date} ${time ? '· '+time : ''}</p>
-    <button class="btn btn-ghost" style="width:100%;">🔔 Remind Me</button>`;
-  grid.appendChild(card);
-  document.getElementById('sessTitle').value='';
-  document.getElementById('sessDate').value='';
-  document.getElementById('sessTime').value='';
+  if(error){ grid.innerHTML = '<p class="empty-note">Could not load sessions.</p>'; return; }
+  liveSessions = data || [];
+  if(!liveSessions.length){
+    grid.innerHTML = '<p class="empty-note">No live satsangs scheduled yet — check back soon.</p>';
+    return;
+  }
+  grid.innerHTML = liveSessions.map(s => `
+    <div class="live-card">
+      <span class="live-badge"><span class="pulse-dot" style="width:7px;height:7px;"></span> Scheduled</span>
+      <h3>${escapeHtml(s.title)}</h3>
+      <p class="live-meta">${s.session_date ? new Date(s.session_date+'T00:00:00').toLocaleDateString('en-IN',{weekday:'long', month:'long', day:'numeric'}) : 'Date TBA'} ${s.session_time ? '· ' + s.session_time : ''}</p>
+      <button class="btn btn-ghost" style="width:100%;" onclick="showToast('You will be reminded before this satsang.')">🔔 Remind Me</button>
+    </div>
+  `).join('');
 }
 
-/* ---------- CHAPTER-WISE LEARNING ---------- */
-let chapters = [
-  { name:"Chapter 1 — Arjuna Vishada Yoga", lessons:[
-    { title:"Verses 1–10", src:null, completed:false },
-    { title:"Verses 11–30", src:null, completed:false },
-    { title:"Verses 31–47", src:null, completed:false }
-  ]},
-  { name:"Chapter 2 — Sankhya Yoga", lessons:[
-    { title:"Verses 1–20", src:null, completed:false },
-    { title:"Verses 21–47", src:null, completed:false },
-    { title:"Verses 48–72", src:null, completed:false }
-  ]},
-  { name:"Chapter 3 — Karma Yoga", lessons:[
-    { title:"Verses 1–20", src:null, completed:false },
-    { title:"Verses 21–43", src:null, completed:false }
-  ]},
-  { name:"Chapter 4 — Jnana Yoga", lessons:[
-    { title:"Verses 1–22", src:null, completed:false },
-    { title:"Verses 23–42", src:null, completed:false }
-  ]}
-];
-let activeChapter = 0;
-let activeLesson = null; // {chapterIdx, lessonIdx}
+async function loadChaptersAndLessons(){
+  const { data: chapterRows, error: chErr } = await sb.from('chapters').select('*').order('order_index', {ascending:true});
+  const { data: lessonRows, error: lsErr } = await sb.from('lessons').select('*').order('order_index', {ascending:true});
+  if(chErr || lsErr){
+    document.getElementById('lessonList').innerHTML = '<p class="empty-note">Could not load the library.</p>';
+    return;
+  }
+  chapters = (chapterRows || []).map(c => ({ ...c, lessons: (lessonRows||[]).filter(l => l.chapter_id === c.id) }));
+  if(activeChapterId === null && chapters.length) activeChapterId = chapters[0].id;
+  populateUploadChapterSelect();
+  renderChapterTabs();
+  renderLessons();
+}
 
-function isLocked(chapterIdx, lessonIdx){
+async function loadProgress(){
+  if(!currentUser) return;
+  const { data, error } = await sb.from('lesson_progress').select('lesson_id, completed').eq('user_id', currentUser.id);
+  progressMap = {};
+  if(!error && data){
+    data.forEach(row => { progressMap[row.lesson_id] = row.completed; });
+  }
+}
+
+/* ===================== LIVE SESSION ADMIN ===================== */
+async function addSession(){
+  const title = document.getElementById('sessTitle').value.trim();
+  const date = document.getElementById('sessDate').value;
+  const time = document.getElementById('sessTime').value;
+  if(!title){ showToast('Please enter a topic name.', 'error'); return; }
+
+  document.getElementById('addSessionBtn').disabled = true;
+  const { error } = await sb.from('live_sessions').insert({
+    title, session_date: date || null, session_time: time || null
+  });
+  document.getElementById('addSessionBtn').disabled = false;
+
+  if(error){ showToast(error.message, 'error'); return; }
+  document.getElementById('sessTitle').value = '';
+  document.getElementById('sessDate').value = '';
+  document.getElementById('sessTime').value = '';
+  showToast('Live session added.');
+  await loadLiveSessions();
+}
+
+/* ===================== CHAPTER-WISE LEARNING ===================== */
+function isLocked(chapter, lessonIdx){
   if(lessonIdx === 0) return false;
-  return !chapters[chapterIdx].lessons[lessonIdx-1].completed;
+  const prevLesson = chapter.lessons[lessonIdx-1];
+  return !progressMap[prevLesson.id];
 }
 
 function renderChapterTabs(){
   const wrap = document.getElementById('chapterTabs');
-  wrap.innerHTML = chapters.map((c,i)=>
-    `<button class="chapter-tab ${i===activeChapter?'active':''}" onclick="selectChapter(${i})">${c.name.split('—')[0].trim()}</button>`
+  if(!chapters.length){ wrap.innerHTML = ''; return; }
+  wrap.innerHTML = chapters.map(c =>
+    `<button class="chapter-tab ${c.id===activeChapterId?'active':''}" onclick="selectChapter(${c.id})">${escapeHtml(c.name.split('—')[0].trim())}</button>`
   ).join('');
 }
 
-function selectChapter(idx){
-  activeChapter = idx;
+function selectChapter(id){
+  activeChapterId = id;
   renderChapterTabs();
   renderLessons();
 }
 
 function renderLessons(){
   const list = document.getElementById('lessonList');
-  const lessons = chapters[activeChapter].lessons;
-  list.innerHTML = lessons.map((l,i)=>{
-    const locked = isLocked(activeChapter,i);
-    const isCurrent = activeLesson && activeLesson.chapterIdx===activeChapter && activeLesson.lessonIdx===i;
+  const chapter = chapters.find(c => c.id === activeChapterId);
+  if(!chapter){ list.innerHTML = '<p class="empty-note">No chapters yet.</p>'; return; }
+  if(!chapter.lessons.length){ list.innerHTML = '<p class="empty-note">No lessons uploaded for this chapter yet.</p>'; return; }
+
+  list.innerHTML = chapter.lessons.map((l,i) => {
+    const locked = isLocked(chapter, i);
+    const completed = !!progressMap[l.id];
+    const isCurrent = activeLessonId === l.id;
     let statusClass = '', statusIcon = i+1;
-    if(l.completed){ statusClass='done'; statusIcon='✓'; }
-    if(isCurrent && !l.completed){ statusClass='playing'; statusIcon='▶'; }
-    let stateText = l.completed ? 'Completed' : (locked ? 'Locked' : (l.src ? 'Ready to play' : 'Awaiting upload'));
-    return `<div class="lesson-item ${locked?'locked':''} ${isCurrent?'current':''}" onclick="${locked?'':`playLesson(${activeChapter},${i})`}">
+    if(completed){ statusClass='done'; statusIcon='✓'; }
+    if(isCurrent && !completed){ statusClass='playing'; statusIcon='▶'; }
+    let stateText = completed ? 'Completed' : (locked ? 'Locked' : (l.media_url ? 'Ready to play' : 'Awaiting upload'));
+    return `<div class="lesson-item ${locked?'locked':''} ${isCurrent?'current':''}" onclick="${locked?'':`playLesson(${l.id})`}">
       <div class="lesson-status ${statusClass}">${locked?'🔒':statusIcon}</div>
       <div class="lesson-info">
-        <div class="lname">${l.title}</div>
+        <div class="lname">${escapeHtml(l.title)}</div>
         <div class="lstate">${stateText}</div>
       </div>
     </div>`;
   }).join('');
 }
 
-function playLesson(chapterIdx, lessonIdx){
-  const lesson = chapters[chapterIdx].lessons[lessonIdx];
-  if(isLocked(chapterIdx,lessonIdx)) return;
-  activeLesson = {chapterIdx, lessonIdx};
+function playLesson(lessonId){
+  const chapter = chapters.find(c => c.id === activeChapterId);
+  const idx = chapter.lessons.findIndex(l => l.id === lessonId);
+  const lesson = chapter.lessons[idx];
+  if(isLocked(chapter, idx)) return;
+
+  if(!currentUser){
+    showToast('Log in to track your progress and unlock the next lesson.');
+  }
+
+  activeLessonId = lessonId;
   const player = document.getElementById('lessonPlayer');
   const empty = document.getElementById('playerEmpty');
   const title = document.getElementById('playerTitle');
   const markBtn = document.getElementById('markDoneBtn');
-  title.textContent = `${chapters[chapterIdx].name} · ${lesson.title}`;
-  if(lesson.src){
-    player.src = lesson.src;
+  title.textContent = `${chapter.name} · ${lesson.title}`;
+
+  if(lesson.media_url){
+    player.src = lesson.media_url;
     player.style.display='block';
     empty.style.display='none';
     player.play().catch(()=>{});
@@ -579,59 +807,77 @@ function playLesson(chapterIdx, lessonIdx){
     empty.style.display='flex';
     empty.querySelector('p').textContent = 'This lesson is awaiting upload from the admin.';
   }
-  markBtn.style.display = lesson.completed ? 'none' : 'inline-flex';
+  markBtn.style.display = (!progressMap[lesson.id] && currentUser) ? 'inline-flex' : 'none';
   renderLessons();
 }
 
-function markCurrentComplete(){
-  if(!activeLesson) return;
-  const {chapterIdx, lessonIdx} = activeLesson;
-  chapters[chapterIdx].lessons[lessonIdx].completed = true;
-  document.getElementById('markDoneBtn').style.display='none';
+async function markCurrentComplete(){
+  if(!activeLessonId || !currentUser) return;
+  const { error } = await sb.from('lesson_progress').upsert({
+    user_id: currentUser.id, lesson_id: activeLessonId, completed: true, completed_at: new Date().toISOString()
+  }, { onConflict: 'user_id,lesson_id' });
+  if(error){ showToast(error.message, 'error'); return; }
+
+  progressMap[activeLessonId] = true;
+  document.getElementById('markDoneBtn').style.display = 'none';
   renderLessons();
-  const nextIdx = lessonIdx+1;
-  if(chapters[chapterIdx].lessons[nextIdx]){
-    setTimeout(()=>playLesson(chapterIdx,nextIdx), 400);
-  }
+
+  const chapter = chapters.find(c => c.id === activeChapterId);
+  const idx = chapter.lessons.findIndex(l => l.id === activeLessonId);
+  const next = chapter.lessons[idx+1];
+  if(next) setTimeout(()=>playLesson(next.id), 400);
+  else showToast('Chapter complete! 🙏');
 }
 
-// auto-unlock next lesson when a video finishes playing on its own
 document.addEventListener('DOMContentLoaded', ()=>{
   const player = document.getElementById('lessonPlayer');
   if(player){
     player.addEventListener('ended', ()=>{
-      if(activeLesson) markCurrentComplete();
+      if(activeLessonId && currentUser && !progressMap[activeLessonId]) markCurrentComplete();
     });
   }
 });
 
 function populateUploadChapterSelect(){
   const sel = document.getElementById('uploadChapter');
-  sel.innerHTML = chapters.map((c,i)=>`<option value="${i}">${c.name}</option>`).join('');
+  if(!sel) return;
+  sel.innerHTML = chapters.map(c => `<option value="${c.id}">${escapeHtml(c.name)}</option>`).join('');
 }
 
-function addLesson(){
-  const chapterIdx = parseInt(document.getElementById('uploadChapter').value, 10);
+async function addLesson(){
+  const chapterId = parseInt(document.getElementById('uploadChapter').value, 10);
   const titleInput = document.getElementById('uploadTitle');
   const fileInput = document.getElementById('uploadFile');
   const title = titleInput.value.trim();
   const file = fileInput.files[0];
-  if(!title || !file){
-    alert('Please add a lesson title and choose a file to upload.');
+  if(!title || !file){ showToast('Please add a lesson title and choose a file.', 'error'); return; }
+
+  setBusy('addLessonBtn','addLessonBtnText', true);
+  const chapter = chapters.find(c => c.id === chapterId);
+  const nextOrder = chapter ? chapter.lessons.length + 1 : 1;
+  const path = `${chapterId}/${Date.now()}_${file.name.replace(/[^a-zA-Z0-9._-]/g,'_')}`;
+
+  const { error: uploadError } = await sb.storage.from('lessons').upload(path, file);
+  if(uploadError){
+    setBusy('addLessonBtn','addLessonBtnText', false, 'Add Lesson');
+    showToast(uploadError.message, 'error');
     return;
   }
-  const src = URL.createObjectURL(file);
-  chapters[chapterIdx].lessons.push({ title, src, completed:false });
-  titleInput.value='';
-  fileInput.value='';
-  if(chapterIdx === activeChapter) renderLessons();
-  alert('Lesson added to "' + chapters[chapterIdx].name + '". It will appear after any earlier lessons in that chapter are completed.');
+  const { data: urlData } = sb.storage.from('lessons').getPublicUrl(path);
+
+  const { error: insertError } = await sb.from('lessons').insert({
+    chapter_id: chapterId, title, order_index: nextOrder, media_url: urlData.publicUrl
+  });
+  setBusy('addLessonBtn','addLessonBtnText', false, 'Add Lesson');
+  if(insertError){ showToast(insertError.message, 'error'); return; }
+
+  titleInput.value = '';
+  fileInput.value = '';
+  showToast('Lesson uploaded and added to "' + chapter.name + '".');
+  await loadChaptersAndLessons();
 }
 
-renderChapterTabs();
-renderLessons();
-populateUploadChapterSelect();
-
+/* ===================== FREE TRIAL TIMER ===================== */
 let trialSeconds = 15*60;
 let trialInterval = null;
 let trialRunning = false;
@@ -664,15 +910,18 @@ function updateTrialDisplay(){
   document.getElementById('trialFill').style.width = (trialSeconds/(15*60)*100)+'%';
 }
 
+/* ===================== SCROLL REVEAL ===================== */
 const revealEls = document.querySelectorAll('.reveal');
 const io = new IntersectionObserver((entries)=>{
   entries.forEach(e=>{ if(e.isIntersecting) e.target.classList.add('in'); });
 },{threshold:0.15});
 revealEls.forEach(el=>io.observe(el));
 
-document.getElementById('modalOverlay').addEventListener('click', (e)=>{
-  if(e.target.id==='modalOverlay') closeModal();
-});
+/* ===================== INIT ===================== */
+(async function init(){
+  await refreshSession();
+  await Promise.all([ loadSloka(), loadLiveSessions(), loadChaptersAndLessons() ]);
+})();
 </script>
 </body>
 </html>
