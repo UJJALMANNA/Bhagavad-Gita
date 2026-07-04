@@ -78,7 +78,7 @@ nav{display:flex;align-items:center;justify-content:space-between;padding:16px 2
 
 .chakra-wrap{position:relative;display:flex;align-items:center;justify-content:center;height:420px;}
 .rath-chakra{position:relative;width:400px;height:400px;filter:drop-shadow(0 10px 40px rgba(201,162,39,0.3));}
-.rath-chakra-spin{transform-origin:100px 100px;animation:spin 14s linear infinite;}
+.rath-chakra-spin{transform-origin:50% 50%;animation:spin 14s linear infinite;}
 .chakra-glow{position:absolute;width:420px;height:420px;border-radius:50%;background:radial-gradient(circle, rgba(201,162,39,0.18), transparent 65%);animation:breathe 4.5s ease-in-out infinite;}
 @keyframes spin{from{transform:rotate(0deg);}to{transform:rotate(360deg);}}
 @keyframes breathe{0%,100%{opacity:0.7;transform:scale(1);}50%{opacity:1;transform:scale(1.05);}}
