@@ -46,7 +46,7 @@ function toggleMobileNav(){
    That's fine for keeping casual visitors out of the upload tools, but it
    is NOT a substitute for real per-person accounts if you need to know
    exactly who uploaded what, or if this content is sensitive. */
-const ADMIN_PASSCODE  = 'ujju03';
+const ADMIN_PASSCODE  = '1020';
 const ADMIN_EMAIL     = 'mannaujjal683@gmail.com';
 const ADMIN_PASSWORD  = '123456';
 
