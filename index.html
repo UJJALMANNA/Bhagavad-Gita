@@ -92,55 +92,8 @@
             <path d="M100 4 L104 16 L100 22 L96 16 Z" transform="rotate(337.5 100 100)"/>
           </g>
 
-          <!-- 16 spokes with a small diamond medallion mid-shaft -->
-          <g stroke="url(#rimGrad)" stroke-width="4" stroke-linecap="round">
-            <line x1="100" y1="30" x2="100" y2="170"/>
-            <line x1="30" y1="100" x2="170" y2="100"/>
-            <line x1="45" y1="45" x2="155" y2="155"/>
-            <line x1="155" y1="45" x2="45" y2="155"/>
-            <line x1="100" y1="30" x2="100" y2="170" transform="rotate(22.5 100 100)"/>
-            <line x1="30" y1="100" x2="170" y2="100" transform="rotate(22.5 100 100)"/>
-            <line x1="45" y1="45" x2="155" y2="155" transform="rotate(22.5 100 100)"/>
-            <line x1="155" y1="45" x2="45" y2="155" transform="rotate(22.5 100 100)"/>
-          </g>
-          <g fill="#E4C766">
-            <circle cx="100" cy="46" r="3.2"/>
-            <circle cx="100" cy="154" r="3.2"/>
-            <circle cx="46" cy="100" r="3.2"/>
-            <circle cx="154" cy="100" r="3.2"/>
-            <circle cx="100" cy="46" r="3.2" transform="rotate(22.5 100 100)"/>
-            <circle cx="100" cy="154" r="3.2" transform="rotate(22.5 100 100)"/>
-            <circle cx="46" cy="100" r="3.2" transform="rotate(22.5 100 100)"/>
-            <circle cx="154" cy="100" r="3.2" transform="rotate(22.5 100 100)"/>
-            <circle cx="100" cy="46" r="3.2" transform="rotate(45 100 100)"/>
-            <circle cx="100" cy="154" r="3.2" transform="rotate(45 100 100)"/>
-            <circle cx="46" cy="100" r="3.2" transform="rotate(45 100 100)"/>
-            <circle cx="154" cy="100" r="3.2" transform="rotate(45 100 100)"/>
-            <circle cx="100" cy="46" r="3.2" transform="rotate(67.5 100 100)"/>
-            <circle cx="100" cy="154" r="3.2" transform="rotate(67.5 100 100)"/>
-            <circle cx="46" cy="100" r="3.2" transform="rotate(67.5 100 100)"/>
-            <circle cx="154" cy="100" r="3.2" transform="rotate(67.5 100 100)"/>
-          </g>
-
-          <!-- studs where spokes meet the rim -->
-          <g fill="#F3E3A0" stroke="#8a6c15" stroke-width="1">
-            <circle cx="100" cy="30" r="4"/>
-            <circle cx="100" cy="170" r="4"/>
-            <circle cx="30" cy="100" r="4"/>
-            <circle cx="170" cy="100" r="4"/>
-            <circle cx="100" cy="30" r="4" transform="rotate(22.5 100 100)"/>
-            <circle cx="100" cy="170" r="4" transform="rotate(22.5 100 100)"/>
-            <circle cx="30" cy="100" r="4" transform="rotate(22.5 100 100)"/>
-            <circle cx="170" cy="100" r="4" transform="rotate(22.5 100 100)"/>
-            <circle cx="100" cy="30" r="4" transform="rotate(45 100 100)"/>
-            <circle cx="100" cy="170" r="4" transform="rotate(45 100 100)"/>
-            <circle cx="30" cy="100" r="4" transform="rotate(45 100 100)"/>
-            <circle cx="170" cy="100" r="4" transform="rotate(45 100 100)"/>
-            <circle cx="100" cy="30" r="4" transform="rotate(67.5 100 100)"/>
-            <circle cx="100" cy="170" r="4" transform="rotate(67.5 100 100)"/>
-            <circle cx="30" cy="100" r="4" transform="rotate(67.5 100 100)"/>
-            <circle cx="170" cy="100" r="4" transform="rotate(67.5 100 100)"/>
-          </g>
+          <!-- 16 spokes, medallions, and rim studs — built from one 16-fold rotation set so nothing can drift out of alignment -->
+          <g id="spokeSet16"></g>
 
           <!-- central hub (nabhi) -->
           <circle cx="100" cy="100" r="24" fill="url(#hubGrad)" stroke="#0B1130" stroke-width="2"/>
@@ -150,6 +103,49 @@
       </svg>
     </div>
   </div>
+  <script>
+    // Build the 16 spokes + medallions + rim studs programmatically so every
+    // spoke, medallion, and stud is generated from the exact same angle list —
+    // this guarantees they line up (the earlier hand-written version had a
+    // gradient-stroke bug that made half the spokes nearly invisible).
+    (function(){
+      const svgNS = 'http://www.w3.org/2000/svg';
+      const group = document.getElementById('spokeSet16');
+      if(!group) return;
+      const cx = 100, cy = 100;
+      const hubR = 26, rimR = 84, studR = 84, medallionR = 55;
+      for(let i = 0; i < 16; i++){
+        const angle = (i * 22.5) * Math.PI / 180;
+        const sin = Math.sin(angle), cos = Math.cos(angle);
+        const x1 = cx + hubR * sin, y1 = cy - hubR * cos;
+        const x2 = cx + rimR * sin, y2 = cy - rimR * cos;
+
+        const spoke = document.createElementNS(svgNS, 'line');
+        spoke.setAttribute('x1', x1); spoke.setAttribute('y1', y1);
+        spoke.setAttribute('x2', x2); spoke.setAttribute('y2', y2);
+        spoke.setAttribute('stroke', '#C9A227');
+        spoke.setAttribute('stroke-width', '4');
+        spoke.setAttribute('stroke-linecap', 'round');
+        group.appendChild(spoke);
+
+        const mx = cx + medallionR * sin, my = cy - medallionR * cos;
+        const medallion = document.createElementNS(svgNS, 'circle');
+        medallion.setAttribute('cx', mx); medallion.setAttribute('cy', my);
+        medallion.setAttribute('r', 3.4);
+        medallion.setAttribute('fill', '#E4C766');
+        group.appendChild(medallion);
+
+        const sx = cx + studR * sin, sy = cy - studR * cos;
+        const stud = document.createElementNS(svgNS, 'circle');
+        stud.setAttribute('cx', sx); stud.setAttribute('cy', sy);
+        stud.setAttribute('r', 4);
+        stud.setAttribute('fill', '#F3E3A0');
+        stud.setAttribute('stroke', '#8a6c15');
+        stud.setAttribute('stroke-width', '1');
+        group.appendChild(stud);
+      }
+    })();
+  </script>
 </section>
 
 <div class="trial-strip">
