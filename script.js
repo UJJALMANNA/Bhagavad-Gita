@@ -6,13 +6,12 @@ const sb = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 let currentUser = null;
 let currentProfile = null;
 
-let chapters = [];   // [{id, name, order_index, lessons:[...]}]
+let chapters = [];
 let liveSessions = [];
-let progressMap = {}; // lesson_id -> completed boolean
+let progressMap = {};
 let activeChapterId = null;
 let activeLessonId = null;
 
-/* ===================== UTIL ===================== */
 function escapeHtml(str){
   return String(str ?? '').replace(/[&<>"']/g, m => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]));
 }
@@ -31,7 +30,6 @@ function toggleMobileNav(){
   nav.style.display = nav.style.display === 'flex' ? 'none' : 'flex';
 }
 
-/* ===================== MODAL / AUTH UI ===================== */
 function openModal(tab){
   document.getElementById('modalOverlay').classList.add('open');
   switchTab(tab);
@@ -136,9 +134,8 @@ async function handleLogout(){
 }
 
 function renderAuthUI(){
-  console.log('renderAuthUI called. currentUser:', currentUser, 'currentProfile:', currentProfile);
   const wrap = document.getElementById('navActions');
-  if(!wrap){ console.error('navActions element not found in DOM'); return; }
+  if(!wrap){ return; }
   const hamburger = wrap.querySelector('.hamburger');
   if(currentUser && currentProfile){
     const initial = (currentProfile.first_name || '?').charAt(0).toUpperCase();
@@ -181,12 +178,11 @@ async function refreshSession(){
 
 let authInitDone = false;
 sb.auth.onAuthStateChange((_event, session) => {
-  if(!authInitDone) return; // avoid double-firing during initial load, init() already handles that
+  if(!authInitDone) return;
   currentUser = session?.user || null;
   refreshSession();
 });
 
-/* ===================== DATA LOADING ===================== */
 async function loadSloka(){
   const { data, error } = await sb.from('daily_sloka').select('*').order('sloka_date', {ascending:false}).limit(1);
   if(error || !data || !data.length){
@@ -241,7 +237,6 @@ async function loadProgress(){
   }
 }
 
-/* ===================== LIVE SESSION ADMIN ===================== */
 async function addSession(){
   const title = document.getElementById('sessTitle').value.trim();
   const date = document.getElementById('sessDate').value;
@@ -262,7 +257,6 @@ async function addSession(){
   await loadLiveSessions();
 }
 
-/* ===================== CHAPTER-WISE LEARNING ===================== */
 function isLocked(chapter, lessonIdx){
   if(lessonIdx === 0) return false;
   const prevLesson = chapter.lessons[lessonIdx-1];
@@ -405,7 +399,6 @@ async function addLesson(){
   await loadChaptersAndLessons();
 }
 
-/* ===================== FREE TRIAL TIMER ===================== */
 let trialSeconds = 15*60;
 let trialInterval = null;
 let trialRunning = false;
@@ -438,14 +431,12 @@ function updateTrialDisplay(){
   document.getElementById('trialFill').style.width = (trialSeconds/(15*60)*100)+'%';
 }
 
-/* ===================== SCROLL REVEAL ===================== */
 const revealEls = document.querySelectorAll('.reveal');
 const io = new IntersectionObserver((entries)=>{
   entries.forEach(e=>{ if(e.isIntersecting) e.target.classList.add('in'); });
 },{threshold:0.15});
 revealEls.forEach(el=>io.observe(el));
 
-/* ===================== INIT ===================== */
 (async function init(){
   await refreshSession();
   authInitDone = true;
