@@ -82,25 +82,15 @@ async function handleSignup(){
   }
 
   setBusy('suSubmit','suSubmitText', true);
-  const { data, error } = await sb.auth.signUp({ email, password });
+  const { data, error } = await sb.auth.signUp({
+    email, password,
+    options: { data: { first_name: first, last_name: last, age: String(age), mobile } }
+  });
   if(error){
     setBusy('suSubmit','suSubmitText', false, 'Create Account');
     errEl.textContent = error.message;
     errEl.classList.add('show');
     return;
-  }
-
-  const userId = data.user?.id;
-  if(userId){
-    const { error: profileError } = await sb.from('profiles').insert({
-      id: userId, first_name: first, last_name: last, age: parseInt(age,10), mobile
-    });
-    if(profileError){
-      setBusy('suSubmit','suSubmitText', false, 'Create Account');
-      errEl.textContent = profileError.message;
-      errEl.classList.add('show');
-      return;
-    }
   }
 
   setBusy('suSubmit','suSubmitText', false, 'Create Account');
