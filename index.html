@@ -211,7 +211,7 @@
     <div class="learn-wrap reveal">
       <div class="player-box">
         <video id="lessonPlayer" controls></video>
-        <div class="audio-player-visual" id="audioPlayerVisual">
+        <div class="audio-player-visual" id="audioPlayerVisual" style="display:none;">
           <svg class="audio-icon" viewBox="0 0 24 24" width="52" height="52">
             <circle cx="12" cy="12" r="10" stroke="#C9A227" stroke-width="1.4" fill="none"/>
             <path d="M9.5 8.2v7.6l6-3.8-6-3.8z" fill="#E4C766"/>
@@ -247,7 +247,17 @@
       <button class="btn btn-primary" id="addLessonBtn" onclick="addLesson()"><span id="addLessonBtnText">Add Lesson</span></button>
     </div>
 
+    <div class="schedule-form reveal" id="adminDemoForm" style="margin-top:36px;display:none;">
+      <h3>🎧 Update the 15-Minute Free Demo Audio</h3>
+      <p class="hint" id="currentDemoLabel">This is the audio every devotee hears when they click "Listen Free for 15 Minutes" before subscribing. Uploading a new file replaces it for everyone immediately. No demo audio uploaded yet.</p>
+      <div class="form-row" style="grid-template-columns:1fr;">
+        <input type="file" id="demoAudioFile" accept="audio/*,.mp3,.wav,.m4a,.aac,.ogg">
+      </div>
+      <button class="btn btn-primary" id="updateDemoBtn" onclick="updateDemoAudio()"><span id="updateDemoBtnText">Upload / Replace Demo Audio</span></button>
+    </div>
+
     <div class="trial-demo reveal" style="margin-top:36px;">
+      <audio id="demoAudio" preload="none" style="display:none;"></audio>
       <div>
         <div class="label">Free listening time remaining</div>
         <div class="timer" id="trialTimer">15:00</div>
