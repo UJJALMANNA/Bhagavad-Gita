@@ -1,0 +1,678 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>GitaVaani — The Voice of the Gita</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,500;0,600;0,700;1,600&family=Mukta:wght@400;500;600;700&display=swap');
+
+:root{
+  --bg-deep:#0B1130;
+  --bg-panel:#141B4D;
+  --bg-panel-2:#1B234F;
+  --gold:#C9A227;
+  --gold-soft:#E4C766;
+  --saffron:#E8834A;
+  --peacock:#2D8C88;
+  --ivory:#F3EFE3;
+  --muted:#9AA1C4;
+  --line:rgba(201,162,39,0.25);
+}
+
+*{margin:0;padding:0;box-sizing:border-box;}
+html{scroll-behavior:smooth;}
+body{background:var(--bg-deep);color:var(--ivory);font-family:'Mukta',sans-serif;line-height:1.6;overflow-x:hidden;}
+body::before{
+  content:"";position:fixed;inset:0;
+  background:
+    radial-gradient(ellipse at 20% -10%, rgba(45,140,136,0.18), transparent 45%),
+    radial-gradient(ellipse at 90% 10%, rgba(201,162,39,0.12), transparent 40%),
+    radial-gradient(ellipse at 50% 100%, rgba(232,131,74,0.08), transparent 50%);
+  pointer-events:none;z-index:0;
+}
+.stars{
+  position:fixed;inset:0;z-index:0;pointer-events:none;
+  background-image:
+    radial-gradient(1px 1px at 10% 20%, rgba(255,255,255,0.5), transparent),
+    radial-gradient(1px 1px at 80% 30%, rgba(255,255,255,0.4), transparent),
+    radial-gradient(1.5px 1.5px at 30% 70%, rgba(255,255,255,0.4), transparent),
+    radial-gradient(1px 1px at 60% 85%, rgba(255,255,255,0.3), transparent),
+    radial-gradient(1px 1px at 90% 60%, rgba(255,255,255,0.4), transparent),
+    radial-gradient(1.5px 1.5px at 45% 15%, rgba(255,255,255,0.3), transparent);
+  background-repeat:no-repeat;
+}
+h1,h2,h3{font-family:'Cormorant Garamond','Mukta',serif;font-weight:600;letter-spacing:0.3px;}
+.eyebrow{text-transform:uppercase;letter-spacing:3px;font-size:0.75rem;color:var(--gold-soft);font-weight:600;}
+a{color:inherit;text-decoration:none;}
+.container{max-width:1180px;margin:0 auto;padding:0 28px;position:relative;z-index:1;}
+
+/* NAV */
+header{position:sticky;top:0;z-index:100;backdrop-filter:blur(10px);background:rgba(11,17,48,0.75);border-bottom:1px solid var(--line);}
+nav{display:flex;align-items:center;justify-content:space-between;padding:16px 28px;max-width:1180px;margin:0 auto;}
+.logo{display:flex;align-items:center;gap:10px;font-family:'Cormorant Garamond',serif;font-size:1.5rem;font-weight:700;color:var(--ivory);}
+.logo .mini-chakra{width:28px;height:28px;}
+.feather-sway{transform-origin:50px 50px;animation:feathersway 3.5s ease-in-out infinite;}
+@keyframes feathersway{0%,100%{transform:rotate(-6deg);}50%{transform:rotate(6deg);}}
+.nav-links{display:flex;gap:32px;align-items:center;font-size:0.95rem;}
+.nav-links a{color:var(--muted);transition:color .2s;}
+.nav-links a:hover{color:var(--gold-soft);}
+.nav-actions{display:flex;gap:12px;align-items:center;}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;padding:10px 22px;border-radius:999px;font-weight:600;font-size:0.9rem;cursor:pointer;border:1px solid transparent;transition:transform .2s, box-shadow .2s, background .2s;font-family:'Mukta',sans-serif;}
+.btn-primary{background:linear-gradient(135deg,var(--saffron),var(--gold));color:#1a1204;}
+.btn-primary:hover{transform:translateY(-2px);box-shadow:0 8px 24px rgba(232,131,74,0.35);}
+.btn-ghost{border-color:var(--line);color:var(--ivory);background:transparent;}
+.btn-ghost:hover{border-color:var(--gold);color:var(--gold-soft);}
+.hamburger{display:none;flex-direction:column;gap:5px;cursor:pointer;background:none;border:none;}
+.hamburger span{width:24px;height:2px;background:var(--ivory);}
+
+/* HERO */
+.hero{position:relative;padding:90px 0 70px;}
+.hero-grid{display:grid;grid-template-columns:1.1fr 0.9fr;gap:40px;align-items:center;}
+.hero h1{font-size:3.2rem;line-height:1.15;margin:18px 0 20px;color:var(--ivory);}
+.hero h1 em{font-style:italic;color:var(--gold-soft);}
+.hero p{color:var(--muted);font-size:1.1rem;max-width:520px;margin-bottom:32px;}
+.hero-ctas{display:flex;gap:16px;flex-wrap:wrap;}
+
+.chakra-wrap{position:relative;display:flex;align-items:center;justify-content:center;height:420px;}
+.krishna-frame{position:absolute;width:220px;height:220px;border-radius:50%;overflow:hidden;z-index:2;border:2px solid var(--gold);box-shadow:0 0 50px rgba(201,162,39,0.35);background:radial-gradient(circle, #1B234F, #0B1130);display:flex;align-items:center;justify-content:center;}
+.krishna-frame img{width:100%;height:100%;object-fit:cover;}
+.krishna-frame .krishna-fallback{width:70%;height:70%;opacity:0.9;}
+.chakra{position:absolute;width:400px;height:400px;animation:spin 18s linear infinite;}
+.chakra-glow{position:absolute;width:420px;height:420px;border-radius:50%;background:radial-gradient(circle, rgba(201,162,39,0.18), transparent 65%);}
+@keyframes spin{from{transform:rotate(0deg);}to{transform:rotate(360deg);}}
+
+@media (prefers-reduced-motion:reduce){
+  .chakra{animation:none;}
+  *{animation-duration:0.001ms !important; animation-iteration-count:1 !important; transition-duration:0.001ms !important;}
+}
+
+/* TRIAL STRIP */
+.trial-strip{background:linear-gradient(90deg, rgba(45,140,136,0.15), rgba(201,162,39,0.12));border-top:1px solid var(--line);border-bottom:1px solid var(--line);padding:18px 0;}
+.trial-strip .container{display:flex;align-items:center;justify-content:center;gap:14px;flex-wrap:wrap;text-align:center;}
+.pulse-dot{width:10px;height:10px;border-radius:50%;background:var(--saffron);animation:pulse 1.8s ease-in-out infinite;flex:none;}
+@keyframes pulse{0%,100%{box-shadow:0 0 0 0 rgba(232,131,74,0.5);}50%{box-shadow:0 0 0 8px rgba(232,131,74,0);}}
+.trial-strip p{font-size:1rem;color:var(--ivory);}
+.trial-strip strong{color:var(--gold-soft);}
+
+section{padding:90px 0;position:relative;}
+.section-head{max-width:640px;margin-bottom:48px;}
+.section-head h2{font-size:2.4rem;margin-top:10px;}
+.section-head p{color:var(--muted);margin-top:12px;font-size:1.05rem;}
+.reveal{opacity:0;transform:translateY(24px);transition:opacity .7s ease, transform .7s ease;}
+.reveal.in{opacity:1;transform:translateY(0);}
+
+/* SLOKA */
+.sloka-card{background:linear-gradient(160deg, var(--bg-panel), var(--bg-panel-2));border:1px solid var(--line);border-radius:20px;padding:48px;display:grid;grid-template-columns:auto 1fr;gap:36px;align-items:center;position:relative;overflow:hidden;}
+.sloka-card::after{content:"";position:absolute;top:-60px;right:-60px;width:200px;height:200px;background:radial-gradient(circle, rgba(201,162,39,0.15), transparent 70%);}
+.om-spin{width:70px;height:70px;animation:spin 40s linear infinite;flex:none;}
+.sloka-sanskrit{font-family:'Cormorant Garamond',serif;font-size:1.7rem;font-style:italic;color:var(--gold-soft);line-height:1.6;margin-bottom:14px;}
+.sloka-translit{color:var(--peacock);font-size:0.95rem;margin-bottom:16px;letter-spacing:0.3px;}
+.sloka-meaning{color:var(--muted);font-size:1rem;max-width:640px;}
+.sloka-tag{display:inline-block;margin-top:18px;font-size:0.8rem;color:var(--muted);border:1px solid var(--line);padding:4px 12px;border-radius:999px;}
+
+/* LIVE */
+.live-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:24px;}
+.live-card{background:var(--bg-panel);border:1px solid var(--line);border-radius:16px;padding:26px;position:relative;transition:transform .25s, border-color .25s;}
+.live-card:hover{transform:translateY(-4px);border-color:var(--gold);}
+.live-badge{display:inline-flex;align-items:center;gap:8px;font-size:0.75rem;color:var(--saffron);text-transform:uppercase;letter-spacing:2px;font-weight:700;margin-bottom:14px;}
+.live-card h3{font-size:1.4rem;color:var(--ivory);margin-bottom:6px;}
+.live-meta{color:var(--muted);font-size:0.9rem;margin-bottom:18px;}
+.shankha-icon{width:22px;height:22px;}
+
+.schedule-form{margin-top:50px;background:var(--bg-panel-2);border:1px solid var(--line);border-radius:16px;padding:32px;}
+.schedule-form h3{color:var(--gold-soft);margin-bottom:6px;font-size:1.3rem;}
+.schedule-form .hint{color:var(--muted);font-size:0.85rem;margin-bottom:20px;}
+.form-row{display:grid;grid-template-columns:1fr 1fr 1fr;gap:14px;margin-bottom:16px;}
+input,select{width:100%;padding:12px 14px;border-radius:10px;border:1px solid var(--line);background:rgba(255,255,255,0.03);color:var(--ivory);font-family:'Mukta',sans-serif;font-size:0.95rem;}
+input::placeholder{color:var(--muted);}
+input:focus,select:focus{outline:2px solid var(--gold);outline-offset:1px;}
+
+/* LIBRARY */
+.lib-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:22px;}
+.lib-card{background:var(--bg-panel);border:1px solid var(--line);border-radius:14px;overflow:hidden;transition:transform .25s;}
+.lib-card:hover{transform:translateY(-4px);}
+.lib-thumb{height:140px;background:linear-gradient(135deg, rgba(45,140,136,0.35), rgba(201,162,39,0.25));display:flex;align-items:center;justify-content:center;position:relative;}
+.play-circle{width:48px;height:48px;border-radius:50%;background:rgba(11,17,48,0.6);border:1px solid var(--gold);display:flex;align-items:center;justify-content:center;}
+.lib-body{padding:18px;}
+.lib-body h4{font-size:1.05rem;color:var(--ivory);margin-bottom:4px;font-family:'Mukta',sans-serif;font-weight:600;}
+.lib-body span{font-size:0.85rem;color:var(--muted);}
+.lock-tag{position:absolute;top:10px;right:10px;background:rgba(11,17,48,0.7);border:1px solid var(--gold);color:var(--gold-soft);font-size:0.7rem;padding:3px 9px;border-radius:999px;}
+
+.trial-demo{margin-top:40px;background:var(--bg-panel-2);border:1px dashed var(--line);border-radius:16px;padding:28px;display:flex;align-items:center;justify-content:space-between;gap:24px;flex-wrap:wrap;}
+.trial-demo .timer{font-size:2.2rem;font-family:'Cormorant Garamond',serif;color:var(--gold-soft);}
+.trial-demo .label{color:var(--muted);font-size:0.85rem;}
+.progress-track{width:100%;max-width:320px;height:8px;background:rgba(255,255,255,0.08);border-radius:999px;overflow:hidden;}
+.progress-fill{height:100%;background:linear-gradient(90deg,var(--peacock),var(--gold));width:100%;transition:width 1s linear;}
+
+/* CHAPTER-WISE LEARNING */
+.learn-wrap{display:grid;grid-template-columns:1.4fr 1fr;gap:24px;align-items:start;}
+.player-box{background:var(--bg-panel);border:1px solid var(--line);border-radius:16px;overflow:hidden;position:relative;}
+.player-box video{width:100%;display:block;max-height:360px;background:#000;}
+.player-box video:not([src]){display:none;}
+.player-empty{padding:70px 20px;text-align:center;color:var(--muted);display:flex;flex-direction:column;align-items:center;gap:10px;}
+.player-meta{padding:18px 20px;display:flex;align-items:center;justify-content:space-between;gap:14px;flex-wrap:wrap;border-top:1px solid var(--line);}
+.player-meta h3{font-size:1.15rem;color:var(--ivory);}
+
+.chapter-tabs{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:16px;}
+.chapter-tab{padding:8px 16px;border-radius:999px;border:1px solid var(--line);background:transparent;color:var(--muted);font-size:0.85rem;cursor:pointer;font-family:'Mukta',sans-serif;font-weight:600;transition:all .2s;}
+.chapter-tab.active{background:linear-gradient(135deg,var(--saffron),var(--gold));color:#1a1204;border-color:transparent;}
+
+.lesson-list{display:flex;flex-direction:column;gap:10px;max-height:420px;overflow-y:auto;padding-right:4px;}
+.lesson-item{display:flex;align-items:center;gap:12px;padding:12px 14px;border-radius:12px;background:var(--bg-panel);border:1px solid var(--line);cursor:pointer;transition:border-color .2s, transform .2s;}
+.lesson-item:hover{border-color:var(--gold);}
+.lesson-item.current{border-color:var(--gold);background:var(--bg-panel-2);}
+.lesson-item.locked{opacity:0.5;cursor:not-allowed;}
+.lesson-status{width:30px;height:30px;border-radius:50%;flex:none;display:flex;align-items:center;justify-content:center;font-size:0.9rem;background:rgba(255,255,255,0.05);border:1px solid var(--line);}
+.lesson-status.done{background:var(--peacock);border-color:var(--peacock);color:#fff;}
+.lesson-status.playing{background:var(--gold);border-color:var(--gold);color:#1a1204;}
+.lesson-info{flex:1;min-width:0;}
+.lesson-info .lname{font-size:0.95rem;color:var(--ivory);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.lesson-info .lstate{font-size:0.75rem;color:var(--muted);}
+
+/* SUBSCRIBE */
+.sub-box{background:linear-gradient(135deg, rgba(45,140,136,0.15), rgba(232,131,74,0.1));border:1px solid var(--line);border-radius:20px;padding:48px;text-align:center;}
+.price{font-family:'Cormorant Garamond',serif;font-size:3.5rem;color:var(--gold-soft);}
+.price span{font-size:1.1rem;color:var(--muted);}
+
+footer{border-top:1px solid var(--line);padding:40px 0;text-align:center;color:var(--muted);font-size:0.9rem;}
+footer .mini-chakra{width:24px;height:24px;margin:0 auto 12px;opacity:0.6;}
+
+/* MODAL */
+.modal-overlay{position:fixed;inset:0;background:rgba(6,9,26,0.75);backdrop-filter:blur(4px);display:none;align-items:center;justify-content:center;z-index:200;padding:20px;}
+.modal-overlay.open{display:flex;}
+.modal{background:var(--bg-panel);border:1px solid var(--line);border-radius:18px;width:100%;max-width:420px;padding:34px;position:relative;}
+.modal-close{position:absolute;top:16px;right:18px;background:none;border:none;color:var(--muted);font-size:1.4rem;cursor:pointer;}
+.tabs{display:flex;gap:8px;margin-bottom:24px;background:rgba(255,255,255,0.04);border-radius:999px;padding:4px;}
+.tab-btn{flex:1;padding:10px;border-radius:999px;border:none;background:transparent;color:var(--muted);cursor:pointer;font-family:'Mukta',sans-serif;font-weight:600;font-size:0.9rem;}
+.tab-btn.active{background:linear-gradient(135deg,var(--saffron),var(--gold));color:#1a1204;}
+.tab-panel{display:none;flex-direction:column;gap:14px;}
+.tab-panel.active{display:flex;}
+.tab-panel .btn-primary{margin-top:6px;}
+
+@media (max-width:860px){
+  .nav-links{display:none;}
+  .hamburger{display:flex;}
+  .hero-grid{grid-template-columns:1fr;padding-top:0;}
+  .hero h1{font-size:2.3rem;}
+  .chakra-wrap{height:280px;}
+  .chakra{width:260px;height:260px;}
+  .krishna-frame{width:150px;height:150px;}
+  .sloka-card{grid-template-columns:1fr;text-align:center;padding:32px;}
+  .om-spin{margin:0 auto;}
+  .form-row{grid-template-columns:1fr;}
+  .learn-wrap{grid-template-columns:1fr;}
+}
+</style>
+</head>
+<body>
+<div class="stars"></div>
+
+<header>
+  <nav>
+    <div class="logo">
+      <svg class="mini-chakra" viewBox="0 0 100 100"><circle cx="50" cy="50" r="44" stroke="#C9A227" stroke-width="3" fill="none"/>
+        <g class="feather-sway"><image href="peacock-feather.png" x="34" y="34" width="32" height="32"/></g>
+      </svg>
+      GitaVaani
+    </div>
+    <div class="nav-links">
+      <a href="#sloka">Daily Sloka</a>
+      <a href="#live">Live Satsang</a>
+      <a href="#library">Library</a>
+      <a href="#subscribe">Subscribe</a>
+    </div>
+    <div class="nav-actions">
+      <button class="btn btn-ghost" onclick="openModal('user')">Devotee Login</button>
+      <button class="btn btn-primary" onclick="openModal('admin')">Admin</button>
+      <button class="hamburger" onclick="toggleMobileNav()"><span></span><span></span><span></span></button>
+    </div>
+  </nav>
+  <div id="mobileNav" style="display:none;flex-direction:column;gap:2px;padding:0 28px 18px;">
+    <a href="#sloka" style="padding:10px 0;color:var(--muted);">Daily Sloka</a>
+    <a href="#live" style="padding:10px 0;color:var(--muted);">Live Satsang</a>
+    <a href="#library" style="padding:10px 0;color:var(--muted);">Library</a>
+    <a href="#subscribe" style="padding:10px 0;color:var(--muted);">Subscribe</a>
+  </div>
+</header>
+
+<section class="hero">
+  <div class="container hero-grid">
+    <div>
+      <span class="eyebrow">Live Pravachan · Daily Sloka · Bhakti Sangh</span>
+      <h1>The Voice of the <em>Bhagavad Gita</em>,<br>Now on Every Devotee's Phone</h1>
+      <p>Timeless teachings of the Gita, spoken with devotion — live satsangs, daily verses, and discourses you can listen to at your own pace, anywhere, anytime.</p>
+      <div class="hero-ctas">
+        <button class="btn btn-primary" onclick="scrollToId('library')">🎧 Listen Free for 15 Minutes</button>
+        <button class="btn btn-ghost" onclick="scrollToId('subscribe')">Subscribe for ₹9</button>
+      </div>
+    </div>
+    <div class="chakra-wrap">
+      <div class="chakra-glow"></div>
+      <svg class="chakra" viewBox="0 0 200 200">
+        <circle cx="100" cy="100" r="94" stroke="#C9A227" stroke-width="2" fill="none" opacity="0.7"/>
+        <circle cx="100" cy="100" r="80" stroke="#E4C766" stroke-width="1.5" fill="none" opacity="0.5"/>
+        <circle cx="100" cy="100" r="14" fill="#C9A227"/>
+        <circle cx="100" cy="100" r="6" fill="#0B1130"/>
+        <g stroke="#E4C766" stroke-width="2" opacity="0.9">
+          <line x1="100" y1="20" x2="100" y2="180"/>
+          <line x1="20" y1="100" x2="180" y2="100"/>
+          <line x1="35" y1="35" x2="165" y2="165"/>
+          <line x1="165" y1="35" x2="35" y2="165"/>
+          <line x1="100" y1="20" x2="100" y2="180" transform="rotate(15 100 100)"/>
+          <line x1="20" y1="100" x2="180" y2="100" transform="rotate(15 100 100)"/>
+          <line x1="35" y1="35" x2="165" y2="165" transform="rotate(15 100 100)"/>
+          <line x1="165" y1="35" x2="35" y2="165" transform="rotate(15 100 100)"/>
+          <line x1="100" y1="20" x2="100" y2="180" transform="rotate(30 100 100)"/>
+          <line x1="20" y1="100" x2="180" y2="100" transform="rotate(30 100 100)"/>
+          <line x1="35" y1="35" x2="165" y2="165" transform="rotate(30 100 100)"/>
+          <line x1="165" y1="35" x2="35" y2="165" transform="rotate(30 100 100)"/>
+        </g>
+        <g fill="#C9A227">
+          <path d="M100 6 L106 20 L94 20 Z"/>
+          <path d="M100 194 L106 180 L94 180 Z"/>
+          <path d="M6 100 L20 106 L20 94 Z"/>
+          <path d="M194 100 L180 106 L180 94 Z"/>
+          <path d="M100 6 L106 20 L94 20 Z" transform="rotate(30 100 100)"/>
+          <path d="M100 6 L106 20 L94 20 Z" transform="rotate(60 100 100)"/>
+          <path d="M100 6 L106 20 L94 20 Z" transform="rotate(90 100 100)"/>
+          <path d="M100 6 L106 20 L94 20 Z" transform="rotate(120 100 100)"/>
+          <path d="M100 6 L106 20 L94 20 Z" transform="rotate(150 100 100)"/>
+          <path d="M100 6 L106 20 L94 20 Z" transform="rotate(180 100 100)"/>
+          <path d="M100 6 L106 20 L94 20 Z" transform="rotate(210 100 100)"/>
+          <path d="M100 6 L106 20 L94 20 Z" transform="rotate(240 100 100)"/>
+          <path d="M100 6 L106 20 L94 20 Z" transform="rotate(270 100 100)"/>
+          <path d="M100 6 L106 20 L94 20 Z" transform="rotate(300 100 100)"/>
+          <path d="M100 6 L106 20 L94 20 Z" transform="rotate(330 100 100)"/>
+        </g>
+      </svg>
+      <div class="krishna-frame">
+        <img id="krishnaImg" src="krishna-photo.png" alt="Krishna" onerror="this.style.display='none'; document.getElementById('krishnaFallback').style.display='block';">
+        <svg id="krishnaFallback" class="krishna-fallback" viewBox="0 0 200 200" style="display:none;">
+          <path d="M100 40 C 85 60, 85 90, 100 120 C 115 90, 115 60, 100 40 Z" fill="#2D8C88" opacity="0.85"/>
+          <circle cx="100" cy="42" r="6" fill="#C9A227"/>
+          <path d="M60 190 C 60 140, 75 110, 100 100 C 125 110, 140 140, 140 190 Z" fill="#141B4D" stroke="#C9A227" stroke-width="1.5"/>
+          <circle cx="100" cy="80" r="26" fill="#0B1130" stroke="#C9A227" stroke-width="1.5"/>
+          <line x1="70" y1="95" x2="130" y2="88" stroke="#E4C766" stroke-width="3" stroke-linecap="round"/>
+        </svg>
+      </div>
+    </div>
+  </div>
+</section>
+
+<div class="trial-strip">
+  <div class="container">
+    <span class="pulse-dot"></span>
+    <p>New devotees get the <strong>first 15 minutes free</strong> — after that, unlock everything for just <strong>₹9/month</strong>.</p>
+  </div>
+</div>
+
+<section id="sloka">
+  <div class="container">
+    <div class="section-head reveal">
+      <span class="eyebrow">Today's Verse</span>
+      <h2>Daily Gita Sloka</h2>
+      <p>A new verse every day, with a simple meaning — start your day with the wisdom of the Gita.</p>
+    </div>
+    <div class="sloka-card reveal">
+      <svg class="om-spin" viewBox="0 0 100 100"><circle cx="50" cy="50" r="46" stroke="#C9A227" stroke-width="1.5" fill="none" opacity="0.5"/><text x="50" y="64" text-anchor="middle" font-size="46" fill="#E4C766" font-family="serif">ॐ</text></svg>
+      <div>
+        <p class="sloka-sanskrit">"karmaṇy-evādhikāras te mā phaleṣu kadācana,<br>mā karma-phala-hetur bhūr mā te saṅgo 'stv akarmaṇi"</p>
+        <p class="sloka-translit">— Bhagavad Gita, Chapter 2, Verse 47</p>
+        <p class="sloka-meaning">Meaning: You have the right to perform your actions, but never to the fruits of those actions. Do not let the results be your motive for acting, nor let attachment draw you toward inaction.</p>
+        <span class="sloka-tag">🔔 A new verse every morning</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="live" style="background:rgba(255,255,255,0.015);">
+  <div class="container">
+    <div class="section-head reveal">
+      <span class="eyebrow">Satsang</span>
+      <h2>Live Satsang Sessions</h2>
+      <p>Join live at the scheduled time, or get notified about upcoming sessions.</p>
+    </div>
+    <div class="live-grid reveal" id="liveGrid">
+      <div class="live-card">
+        <span class="live-badge"><span class="pulse-dot" style="width:7px;height:7px;"></span> Next Live</span>
+        <h3>Chapter 2 — Sankhya Yoga</h3>
+        <p class="live-meta">Friday · July 6 · 7:00 PM (IST)</p>
+        <button class="btn btn-ghost" style="width:100%;">🔔 Remind Me</button>
+      </div>
+      <div class="live-card">
+        <span class="live-badge" style="color:var(--peacock);">
+          <svg class="shankha-icon" viewBox="0 0 24 24"><path d="M6 18 C6 10, 12 4, 18 6 C 15 8, 13 12, 14 18 Z" fill="#2D8C88"/></svg>
+          Weekly
+        </span>
+        <h3>Tuesday Satsang</h3>
+        <p class="live-meta">Every Tuesday · 7:00 PM</p>
+        <button class="btn btn-ghost" style="width:100%;">🔔 Remind Me</button>
+      </div>
+    </div>
+
+    <div class="schedule-form reveal">
+      <h3>🗓️ Add a New Live Session (Admin)</h3>
+      <p class="hint">This is a demo — later this will be saved securely to your server/app.</p>
+      <div class="form-row">
+        <input type="text" id="sessTitle" placeholder="Topic / Chapter name">
+        <input type="date" id="sessDate">
+        <input type="time" id="sessTime">
+      </div>
+      <button class="btn btn-primary" onclick="addSession()">Add Session</button>
+    </div>
+  </div>
+</section>
+
+<section id="library">
+  <div class="container">
+    <div class="section-head reveal">
+      <span class="eyebrow">Chapter-Wise Learning</span>
+      <h2>Learn the Gita, Chapter by Chapter</h2>
+      <p>Every chapter is broken into short verse-by-verse lessons. Complete one to unlock the next — learn the Gita in sequence, at your own pace.</p>
+    </div>
+
+    <div class="learn-wrap reveal">
+      <!-- Player -->
+      <div class="player-box">
+        <video id="lessonPlayer" controls></video>
+        <div class="player-empty" id="playerEmpty">
+          <svg viewBox="0 0 24 24" width="40" height="40"><circle cx="12" cy="12" r="10" stroke="#C9A227" stroke-width="1.5" fill="none"/><path d="M10 8l6 4-6 4V8z" fill="#E4C766"/></svg>
+          <p>Select a lesson to begin</p>
+        </div>
+        <div class="player-meta">
+          <h3 id="playerTitle">No lesson selected</h3>
+          <button class="btn btn-primary" id="markDoneBtn" onclick="markCurrentComplete()" style="display:none;">✓ Mark Complete &amp; Unlock Next</button>
+        </div>
+      </div>
+
+      <!-- Chapter tabs + lesson list -->
+      <div class="learn-side">
+        <div class="chapter-tabs" id="chapterTabs"></div>
+        <div class="lesson-list" id="lessonList"></div>
+      </div>
+    </div>
+
+    <div class="schedule-form reveal" style="margin-top:36px;">
+      <h3>📤 Upload a New Lesson (Admin)</h3>
+      <p class="hint">Upload your voice artist's audio or video for a chapter. New lessons are added to the end of that chapter's sequence and stay locked until the devotee reaches them. This demo plays uploads from your own device for preview — connect storage later to make uploads permanent for all users.</p>
+      <div class="form-row" style="grid-template-columns:1fr 1fr;">
+        <select id="uploadChapter"></select>
+        <input type="text" id="uploadTitle" placeholder="Lesson title (e.g. Verses 1–10)">
+      </div>
+      <div class="form-row" style="grid-template-columns:1fr;">
+        <input type="file" id="uploadFile" accept="video/*,audio/*">
+      </div>
+      <button class="btn btn-primary" onclick="addLesson()">Add Lesson</button>
+    </div>
+
+    <div class="trial-demo reveal" style="margin-top:36px;">
+      <div>
+        <div class="label">Free listening time remaining</div>
+        <div class="timer" id="trialTimer">15:00</div>
+      </div>
+      <div style="flex:1;min-width:200px;">
+        <div class="progress-track"><div class="progress-fill" id="trialFill"></div></div>
+      </div>
+      <button class="btn btn-primary" id="trialBtn" onclick="toggleTrial()">▶ Start Demo</button>
+    </div>
+  </div>
+</section>
+
+<section id="subscribe" style="background:rgba(255,255,255,0.015);">
+  <div class="container">
+    <div class="sub-box reveal">
+      <span class="eyebrow">Subscription</span>
+      <h2 style="margin:14px 0;">Unlock the Full Vaani</h2>
+      <div class="price">₹9 <span>/ month</span></div>
+      <p style="color:var(--muted);max-width:480px;margin:14px auto 26px;">All chapters, every live satsang, and the daily sloka — without interruption.</p>
+      <button class="btn btn-primary" onclick="openModal('user')">Subscribe Now</button>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <div class="container">
+    <svg class="mini-chakra" viewBox="0 0 100 100"><circle cx="50" cy="50" r="44" stroke="#C9A227" stroke-width="3" fill="none"/>
+      <g class="feather-sway"><image href="peacock-feather.png" x="34" y="34" width="32" height="32"/></g>
+    </svg>
+    <p>GitaVaani — The Voice of the Gita, for Every Devotee</p>
+    <p style="margin-top:6px;font-size:0.8rem;opacity:0.7;">© 2026 GitaVaani. This is a demo website — it will later be turned into a mobile app.</p>
+  </div>
+</footer>
+
+<div class="modal-overlay" id="modalOverlay">
+  <div class="modal">
+    <button class="modal-close" onclick="closeModal()">&times;</button>
+    <div class="tabs">
+      <button class="tab-btn active" id="tabUserBtn" onclick="switchTab('user')">Devotee Login</button>
+      <button class="tab-btn" id="tabAdminBtn" onclick="switchTab('admin')">Admin Login</button>
+    </div>
+    <div class="tab-panel active" id="tabUser">
+      <input type="text" placeholder="Name">
+      <input type="tel" placeholder="Mobile Number">
+      <button class="btn btn-primary">Send OTP</button>
+    </div>
+    <div class="tab-panel" id="tabAdmin">
+      <input type="email" placeholder="Admin email">
+      <input type="password" placeholder="Password">
+      <button class="btn btn-primary">Log In as Admin</button>
+    </div>
+  </div>
+</div>
+
+<script>
+function toggleMobileNav(){
+  const nav = document.getElementById('mobileNav');
+  nav.style.display = nav.style.display === 'flex' ? 'none' : 'flex';
+}
+function scrollToId(id){document.getElementById(id).scrollIntoView({behavior:'smooth'});}
+
+function openModal(tab){
+  document.getElementById('modalOverlay').classList.add('open');
+  switchTab(tab);
+}
+function closeModal(){document.getElementById('modalOverlay').classList.remove('open');}
+function switchTab(tab){
+  document.getElementById('tabUser').classList.toggle('active', tab==='user');
+  document.getElementById('tabAdmin').classList.toggle('active', tab==='admin');
+  document.getElementById('tabUserBtn').classList.toggle('active', tab==='user');
+  document.getElementById('tabAdminBtn').classList.toggle('active', tab==='admin');
+}
+
+function addSession(){
+  const title = document.getElementById('sessTitle').value || 'New Satsang';
+  const date = document.getElementById('sessDate').value || 'Date to be announced';
+  const time = document.getElementById('sessTime').value || '';
+  const grid = document.getElementById('liveGrid');
+  const card = document.createElement('div');
+  card.className = 'live-card';
+  card.innerHTML = `<span class="live-badge" style="color:var(--gold-soft);">✨ Newly Added</span>
+    <h3>${title}</h3>
+    <p class="live-meta">${date} ${time ? '· '+time : ''}</p>
+    <button class="btn btn-ghost" style="width:100%;">🔔 Remind Me</button>`;
+  grid.appendChild(card);
+  document.getElementById('sessTitle').value='';
+  document.getElementById('sessDate').value='';
+  document.getElementById('sessTime').value='';
+}
+
+/* ---------- CHAPTER-WISE LEARNING ---------- */
+let chapters = [
+  { name:"Chapter 1 — Arjuna Vishada Yoga", lessons:[
+    { title:"Verses 1–10", src:null, completed:false },
+    { title:"Verses 11–30", src:null, completed:false },
+    { title:"Verses 31–47", src:null, completed:false }
+  ]},
+  { name:"Chapter 2 — Sankhya Yoga", lessons:[
+    { title:"Verses 1–20", src:null, completed:false },
+    { title:"Verses 21–47", src:null, completed:false },
+    { title:"Verses 48–72", src:null, completed:false }
+  ]},
+  { name:"Chapter 3 — Karma Yoga", lessons:[
+    { title:"Verses 1–20", src:null, completed:false },
+    { title:"Verses 21–43", src:null, completed:false }
+  ]},
+  { name:"Chapter 4 — Jnana Yoga", lessons:[
+    { title:"Verses 1–22", src:null, completed:false },
+    { title:"Verses 23–42", src:null, completed:false }
+  ]}
+];
+let activeChapter = 0;
+let activeLesson = null; // {chapterIdx, lessonIdx}
+
+function isLocked(chapterIdx, lessonIdx){
+  if(lessonIdx === 0) return false;
+  return !chapters[chapterIdx].lessons[lessonIdx-1].completed;
+}
+
+function renderChapterTabs(){
+  const wrap = document.getElementById('chapterTabs');
+  wrap.innerHTML = chapters.map((c,i)=>
+    `<button class="chapter-tab ${i===activeChapter?'active':''}" onclick="selectChapter(${i})">${c.name.split('—')[0].trim()}</button>`
+  ).join('');
+}
+
+function selectChapter(idx){
+  activeChapter = idx;
+  renderChapterTabs();
+  renderLessons();
+}
+
+function renderLessons(){
+  const list = document.getElementById('lessonList');
+  const lessons = chapters[activeChapter].lessons;
+  list.innerHTML = lessons.map((l,i)=>{
+    const locked = isLocked(activeChapter,i);
+    const isCurrent = activeLesson && activeLesson.chapterIdx===activeChapter && activeLesson.lessonIdx===i;
+    let statusClass = '', statusIcon = i+1;
+    if(l.completed){ statusClass='done'; statusIcon='✓'; }
+    if(isCurrent && !l.completed){ statusClass='playing'; statusIcon='▶'; }
+    let stateText = l.completed ? 'Completed' : (locked ? 'Locked' : (l.src ? 'Ready to play' : 'Awaiting upload'));
+    return `<div class="lesson-item ${locked?'locked':''} ${isCurrent?'current':''}" onclick="${locked?'':`playLesson(${activeChapter},${i})`}">
+      <div class="lesson-status ${statusClass}">${locked?'🔒':statusIcon}</div>
+      <div class="lesson-info">
+        <div class="lname">${l.title}</div>
+        <div class="lstate">${stateText}</div>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function playLesson(chapterIdx, lessonIdx){
+  const lesson = chapters[chapterIdx].lessons[lessonIdx];
+  if(isLocked(chapterIdx,lessonIdx)) return;
+  activeLesson = {chapterIdx, lessonIdx};
+  const player = document.getElementById('lessonPlayer');
+  const empty = document.getElementById('playerEmpty');
+  const title = document.getElementById('playerTitle');
+  const markBtn = document.getElementById('markDoneBtn');
+  title.textContent = `${chapters[chapterIdx].name} · ${lesson.title}`;
+  if(lesson.src){
+    player.src = lesson.src;
+    player.style.display='block';
+    empty.style.display='none';
+    player.play().catch(()=>{});
+  } else {
+    player.removeAttribute('src');
+    player.style.display='none';
+    empty.style.display='flex';
+    empty.querySelector('p').textContent = 'This lesson is awaiting upload from the admin.';
+  }
+  markBtn.style.display = lesson.completed ? 'none' : 'inline-flex';
+  renderLessons();
+}
+
+function markCurrentComplete(){
+  if(!activeLesson) return;
+  const {chapterIdx, lessonIdx} = activeLesson;
+  chapters[chapterIdx].lessons[lessonIdx].completed = true;
+  document.getElementById('markDoneBtn').style.display='none';
+  renderLessons();
+  const nextIdx = lessonIdx+1;
+  if(chapters[chapterIdx].lessons[nextIdx]){
+    setTimeout(()=>playLesson(chapterIdx,nextIdx), 400);
+  }
+}
+
+// auto-unlock next lesson when a video finishes playing on its own
+document.addEventListener('DOMContentLoaded', ()=>{
+  const player = document.getElementById('lessonPlayer');
+  if(player){
+    player.addEventListener('ended', ()=>{
+      if(activeLesson) markCurrentComplete();
+    });
+  }
+});
+
+function populateUploadChapterSelect(){
+  const sel = document.getElementById('uploadChapter');
+  sel.innerHTML = chapters.map((c,i)=>`<option value="${i}">${c.name}</option>`).join('');
+}
+
+function addLesson(){
+  const chapterIdx = parseInt(document.getElementById('uploadChapter').value, 10);
+  const titleInput = document.getElementById('uploadTitle');
+  const fileInput = document.getElementById('uploadFile');
+  const title = titleInput.value.trim();
+  const file = fileInput.files[0];
+  if(!title || !file){
+    alert('Please add a lesson title and choose a file to upload.');
+    return;
+  }
+  const src = URL.createObjectURL(file);
+  chapters[chapterIdx].lessons.push({ title, src, completed:false });
+  titleInput.value='';
+  fileInput.value='';
+  if(chapterIdx === activeChapter) renderLessons();
+  alert('Lesson added to "' + chapters[chapterIdx].name + '". It will appear after any earlier lessons in that chapter are completed.');
+}
+
+renderChapterTabs();
+renderLessons();
+populateUploadChapterSelect();
+
+let trialSeconds = 15*60;
+let trialInterval = null;
+let trialRunning = false;
+function toggleTrial(){
+  const btn = document.getElementById('trialBtn');
+  if(!trialRunning){
+    trialRunning = true;
+    btn.textContent = '⏸ Pause';
+    trialInterval = setInterval(()=>{
+      trialSeconds--;
+      updateTrialDisplay();
+      if(trialSeconds<=0){
+        clearInterval(trialInterval);
+        trialRunning = false;
+        document.getElementById('trialTimer').textContent = "Time's Up";
+        btn.textContent = 'Continue for ₹9';
+        btn.onclick = ()=>scrollToId('subscribe');
+      }
+    },1000);
+  } else {
+    trialRunning = false;
+    clearInterval(trialInterval);
+    btn.textContent = '▶ Resume';
+  }
+}
+function updateTrialDisplay(){
+  const m = Math.floor(trialSeconds/60).toString().padStart(2,'0');
+  const s = (trialSeconds%60).toString().padStart(2,'0');
+  document.getElementById('trialTimer').textContent = `${m}:${s}`;
+  document.getElementById('trialFill').style.width = (trialSeconds/(15*60)*100)+'%';
+}
+
+const revealEls = document.querySelectorAll('.reveal');
+const io = new IntersectionObserver((entries)=>{
+  entries.forEach(e=>{ if(e.isIntersecting) e.target.classList.add('in'); });
+},{threshold:0.15});
+revealEls.forEach(el=>io.observe(el));
+
+document.getElementById('modalOverlay').addEventListener('click', (e)=>{
+  if(e.target.id==='modalOverlay') closeModal();
+});
+</script>
+</body>
+</html>
