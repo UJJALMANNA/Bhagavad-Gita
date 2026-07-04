@@ -30,6 +30,75 @@ function toggleMobileNav(){
   nav.style.display = nav.style.display === 'flex' ? 'none' : 'flex';
 }
 
+/* ===================== ADMIN PASSCODE LOGIN =====================
+   Team members share ONE simple passcode instead of an email/password.
+   Entering it correctly signs in behind the scenes to the single admin
+   Supabase account below, so your existing is_admin + RLS rules keep
+   working exactly as before — the passcode is just a friendlier front door.
+
+   IMPORTANT: replace the three placeholder values below.
+   - ADMIN_PASSCODE: whatever simple word/phrase you want your team to type.
+   - ADMIN_EMAIL / ADMIN_PASSWORD: the real login for the ONE Supabase
+     account you already set is_admin = true for.
+
+   Note on security: this passcode (and the admin email/password) live in
+   this JS file, which anyone can view via "View Source" in their browser.
+   That's fine for keeping casual visitors out of the upload tools, but it
+   is NOT a substitute for real per-person accounts if you need to know
+   exactly who uploaded what, or if this content is sensitive. */
+const ADMIN_PASSCODE  = 'REPLACE_WITH_YOUR_PASSCODE';
+const ADMIN_EMAIL     = 'REPLACE_WITH_ADMIN_EMAIL';
+const ADMIN_PASSWORD  = 'REPLACE_WITH_ADMIN_PASSWORD';
+
+function openAdminLogin(){
+  document.getElementById('adminModalOverlay').classList.add('open');
+  document.getElementById('adminPasscodeInput').value = '';
+  document.getElementById('adminPasscodeError').classList.remove('show');
+}
+function closeAdminModal(){
+  document.getElementById('adminModalOverlay').classList.remove('open');
+}
+document.getElementById('adminModalOverlay').addEventListener('click', (e)=>{
+  if(e.target.id==='adminModalOverlay') closeAdminModal();
+});
+
+async function submitAdminPasscode(){
+  const input = document.getElementById('adminPasscodeInput').value.trim();
+  const errEl = document.getElementById('adminPasscodeError');
+  errEl.classList.remove('show');
+
+  if(!input){
+    errEl.textContent = 'Please enter the admin passcode.';
+    errEl.classList.add('show');
+    return;
+  }
+  if(input !== ADMIN_PASSCODE){
+    errEl.textContent = 'Incorrect passcode.';
+    errEl.classList.add('show');
+    return;
+  }
+
+  setBusy('adminPasscodeSubmit','adminPasscodeSubmitText', true);
+  const { error } = await sb.auth.signInWithPassword({ email: ADMIN_EMAIL, password: ADMIN_PASSWORD });
+  setBusy('adminPasscodeSubmit','adminPasscodeSubmitText', false, 'Unlock Admin Tools');
+
+  if(error){
+    errEl.textContent = 'Passcode correct, but admin sign-in failed: ' + error.message;
+    errEl.classList.add('show');
+    return;
+  }
+
+  await refreshSession();
+  closeAdminModal();
+
+  if(currentProfile && currentProfile.is_admin){
+    showToast('Admin access confirmed — upload tools unlocked.');
+    setTimeout(()=>scrollToId('library'), 500);
+  } else {
+    showToast('Signed in, but this account is not flagged is_admin in Supabase.', 'error');
+  }
+}
+
 function openModal(tab){
   document.getElementById('modalOverlay').classList.add('open');
   switchTab(tab);
@@ -149,6 +218,7 @@ function renderAuthUI(){
     if(hamburger) wrap.appendChild(hamburger);
   } else {
     wrap.innerHTML = `
+      <button class="btn btn-admin" onclick="openAdminLogin()">🔑 Admin Login</button>
       <button class="btn btn-ghost" onclick="openModal('login')">Devotee Login</button>
       <button class="btn btn-primary" onclick="openModal('signup')">Sign Up</button>
     `;
