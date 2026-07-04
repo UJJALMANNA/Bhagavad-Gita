@@ -211,6 +211,13 @@
     <div class="learn-wrap reveal">
       <div class="player-box">
         <video id="lessonPlayer" controls></video>
+        <div class="audio-player-visual" id="audioPlayerVisual">
+          <svg class="audio-icon" viewBox="0 0 24 24" width="52" height="52">
+            <circle cx="12" cy="12" r="10" stroke="#C9A227" stroke-width="1.4" fill="none"/>
+            <path d="M9.5 8.2v7.6l6-3.8-6-3.8z" fill="#E4C766"/>
+          </svg>
+          <audio id="lessonAudio" controls></audio>
+        </div>
         <div class="player-empty" id="playerEmpty">
           <svg viewBox="0 0 24 24" width="40" height="40"><circle cx="12" cy="12" r="10" stroke="#C9A227" stroke-width="1.5" fill="none"/><path d="M10 8l6 4-6 4V8z" fill="#E4C766"/></svg>
           <p>Select a lesson to begin</p>
@@ -229,13 +236,13 @@
 
     <div class="schedule-form reveal" id="adminLessonForm" style="margin-top:36px;display:none;">
       <h3>📤 Upload a New Lesson</h3>
-      <p class="hint">New lessons are added to the end of that chapter's sequence and stay locked until the devotee reaches them. Files are stored permanently and playable by every devotee.</p>
+      <p class="hint">Upload an audio file (MP3, M4A, WAV) or a video file. New lessons are added to the end of that chapter's sequence and stay locked until the devotee reaches them. Files are stored permanently and playable by every devotee.</p>
       <div class="form-row" style="grid-template-columns:1fr 1fr;">
         <select id="uploadChapter"></select>
         <input type="text" id="uploadTitle" placeholder="Lesson title (e.g. Verses 1–10)">
       </div>
       <div class="form-row" style="grid-template-columns:1fr;">
-        <input type="file" id="uploadFile" accept="video/*,audio/*">
+        <input type="file" id="uploadFile" accept="audio/*,video/*,.mp3,.wav,.m4a,.aac,.ogg">
       </div>
       <button class="btn btn-primary" id="addLessonBtn" onclick="addLesson()"><span id="addLessonBtnText">Add Lesson</span></button>
     </div>
