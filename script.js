@@ -61,16 +61,22 @@ async function handleSignup(){
   const mobile = document.getElementById('suMobile').value.trim();
   const email = document.getElementById('suEmail').value.trim();
   const password = document.getElementById('suPassword').value;
+  const confirmPassword = document.getElementById('suConfirmPassword').value;
   const errEl = document.getElementById('suError');
   errEl.classList.remove('show');
 
-  if(!first || !last || !email || !password || !mobile || !age){
+  if(!first || !last || !email || !password || !confirmPassword || !mobile || !age){
     errEl.textContent = 'Please fill in every field.';
     errEl.classList.add('show');
     return;
   }
   if(password.length < 6){
     errEl.textContent = 'Password must be at least 6 characters.';
+    errEl.classList.add('show');
+    return;
+  }
+  if(password !== confirmPassword){
+    errEl.textContent = 'Passwords do not match.';
     errEl.classList.add('show');
     return;
   }
