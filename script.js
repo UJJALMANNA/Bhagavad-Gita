@@ -30,6 +30,13 @@ function toggleMobileNav(){
   nav.style.display = nav.style.display === 'flex' ? 'none' : 'flex';
 }
 
+/* Decide whether a media URL / file is audio-only (mp3, wav, m4a, aac, ogg, etc)
+   so the player can show a proper audio control instead of a blank video box. */
+function isAudioMedia(urlOrName){
+  if(!urlOrName) return false;
+  return /\.(mp3|wav|m4a|aac|ogg|oga|flac|weba)(\?.*)?$/i.test(urlOrName);
+}
+
 /* ===================== ADMIN PASSCODE LOGIN =====================
    Team members share ONE simple passcode instead of an email/password.
    Entering it correctly signs in behind the scenes to the single admin
@@ -360,7 +367,7 @@ function renderLessons(){
     let statusClass = '', statusIcon = i+1;
     if(completed){ statusClass='done'; statusIcon='✓'; }
     if(isCurrent && !completed){ statusClass='playing'; statusIcon='▶'; }
-    let stateText = completed ? 'Completed' : (locked ? 'Locked' : (l.media_url ? 'Ready to play' : 'Awaiting upload'));
+    let stateText = completed ? 'Completed' : (locked ? 'Locked' : (l.media_url ? (isAudioMedia(l.media_url) ? '🎧 Ready to play' : '▶ Ready to play') : 'Awaiting upload'));
     return `<div class="lesson-item ${locked?'locked':''} ${isCurrent?'current':''}" onclick="${locked?'':`playLesson(${l.id})`}">
       <div class="lesson-status ${statusClass}">${locked?'🔒':statusIcon}</div>
       <div class="lesson-info">
@@ -382,21 +389,34 @@ function playLesson(lessonId){
   }
 
   activeLessonId = lessonId;
-  const player = document.getElementById('lessonPlayer');
+  const videoPlayer = document.getElementById('lessonPlayer');
+  const audioWrap = document.getElementById('audioPlayerVisual');
+  const audioPlayer = document.getElementById('lessonAudio');
   const empty = document.getElementById('playerEmpty');
   const title = document.getElementById('playerTitle');
   const markBtn = document.getElementById('markDoneBtn');
   title.textContent = `${chapter.name} · ${lesson.title}`;
 
+  // Always fully reset both media elements before switching, so an mp3
+  // lesson never leaves a paused video (or vice versa) running in the background.
+  videoPlayer.pause(); videoPlayer.removeAttribute('src'); videoPlayer.load();
+  audioPlayer.pause(); audioPlayer.removeAttribute('src'); audioPlayer.load();
+  videoPlayer.style.display = 'none';
+  audioWrap.style.display = 'none';
+  empty.style.display = 'none';
+
   if(lesson.media_url){
-    player.src = lesson.media_url;
-    player.style.display='block';
-    empty.style.display='none';
-    player.play().catch(()=>{});
+    if(isAudioMedia(lesson.media_url)){
+      audioPlayer.src = lesson.media_url;
+      audioWrap.style.display = 'flex';
+      audioPlayer.play().catch(()=>{});
+    } else {
+      videoPlayer.src = lesson.media_url;
+      videoPlayer.style.display = 'block';
+      videoPlayer.play().catch(()=>{});
+    }
   } else {
-    player.removeAttribute('src');
-    player.style.display='none';
-    empty.style.display='flex';
+    empty.style.display = 'flex';
     empty.querySelector('p').textContent = 'This lesson is awaiting upload from the admin.';
   }
   markBtn.style.display = (!progressMap[lesson.id] && currentUser) ? 'inline-flex' : 'none';
@@ -422,12 +442,13 @@ async function markCurrentComplete(){
 }
 
 document.addEventListener('DOMContentLoaded', ()=>{
-  const player = document.getElementById('lessonPlayer');
-  if(player){
-    player.addEventListener('ended', ()=>{
-      if(activeLessonId && currentUser && !progressMap[activeLessonId]) markCurrentComplete();
-    });
-  }
+  const video = document.getElementById('lessonPlayer');
+  const audio = document.getElementById('lessonAudio');
+  const onEnded = ()=>{
+    if(activeLessonId && currentUser && !progressMap[activeLessonId]) markCurrentComplete();
+  };
+  if(video) video.addEventListener('ended', onEnded);
+  if(audio) audio.addEventListener('ended', onEnded);
 });
 
 function populateUploadChapterSelect(){
@@ -449,7 +470,9 @@ async function addLesson(){
   const nextOrder = chapter ? chapter.lessons.length + 1 : 1;
   const path = `${chapterId}/${Date.now()}_${file.name.replace(/[^a-zA-Z0-9._-]/g,'_')}`;
 
-  const { error: uploadError } = await sb.storage.from('lessons').upload(path, file);
+  const { error: uploadError } = await sb.storage.from('lessons').upload(path, file, {
+    contentType: file.type || undefined
+  });
   if(uploadError){
     setBusy('addLessonBtn','addLessonBtnText', false, 'Add Lesson');
     showToast(uploadError.message, 'error');
@@ -465,7 +488,7 @@ async function addLesson(){
 
   titleInput.value = '';
   fileInput.value = '';
-  showToast('Lesson uploaded and added to "' + chapter.name + '".');
+  showToast((isAudioMedia(file.name) ? 'Audio lesson' : 'Lesson') + ' uploaded and added to "' + chapter.name + '".');
   await loadChaptersAndLessons();
 }
 
