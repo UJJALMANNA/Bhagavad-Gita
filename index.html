@@ -26,6 +26,7 @@
       <a href="#subscribe">Subscribe</a>
     </div>
     <div class="nav-actions" id="navActions">
+      <button class="btn btn-admin" id="adminLoginBtn" onclick="openAdminLogin()">🔑 Admin Login</button>
       <button class="btn btn-ghost" id="loginBtn" onclick="openModal('login')">Devotee Login</button>
       <button class="btn btn-primary" id="signupBtn" onclick="openModal('signup')">Sign Up</button>
       <button class="hamburger" onclick="toggleMobileNav()"><span></span><span></span><span></span></button>
@@ -36,6 +37,7 @@
     <a href="#live" style="padding:10px 0;color:var(--muted);">Live Satsang</a>
     <a href="#library" style="padding:10px 0;color:var(--muted);">Library</a>
     <a href="#subscribe" style="padding:10px 0;color:var(--muted);">Subscribe</a>
+    <a href="javascript:void(0)" onclick="openAdminLogin()" style="padding:10px 0;color:var(--gold-soft);">🔑 Admin Login</a>
   </div>
 </header>
 
@@ -303,6 +305,17 @@
       <button class="btn btn-primary" id="liSubmit" onclick="handleLogin()"><span id="liSubmitText">Log In</span></button>
       <p class="switch-line">New here? <button onclick="switchTab('signup')">Create an account</button></p>
     </div>
+  </div>
+</div>
+
+<div class="modal-overlay" id="adminModalOverlay">
+  <div class="modal">
+    <button class="modal-close" onclick="closeAdminModal()">&times;</button>
+    <h3 style="color:var(--gold-soft);font-size:1.3rem;margin-bottom:6px;">🔑 Admin Access</h3>
+    <p class="hint" style="color:var(--muted);font-size:0.85rem;margin-bottom:20px;">Enter the shared admin passcode to unlock the upload tools.</p>
+    <div><label class="field-label">Passcode</label><input type="password" id="adminPasscodeInput" placeholder="Admin passcode" onkeydown="if(event.key==='Enter') submitAdminPasscode()"></div>
+    <p class="form-error" id="adminPasscodeError" style="margin-top:10px;"></p>
+    <button class="btn btn-primary" id="adminPasscodeSubmit" onclick="submitAdminPasscode()" style="margin-top:16px;width:100%;"><span id="adminPasscodeSubmitText">Unlock Admin Tools</span></button>
   </div>
 </div>
 
