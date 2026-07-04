@@ -163,8 +163,8 @@ async function refreshSession(){
   const { data: { session } } = await sb.auth.getSession();
   currentUser = session?.user || null;
   if(currentUser){
-    const { data: profile } = await sb.from('profiles').select('*').eq('id', currentUser.id).single();
-    currentProfile = profile || null;
+    const { data: profile } = await sb.from('profiles').select('*').eq('id', currentUser.id).maybeSingle();
+    currentProfile = profile || { first_name: (currentUser.email || 'Devotee').split('@')[0], is_admin: false };
     await loadProgress();
   } else {
     currentProfile = null;
