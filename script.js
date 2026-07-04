@@ -136,7 +136,9 @@ async function handleLogout(){
 }
 
 function renderAuthUI(){
+  console.log('renderAuthUI called. currentUser:', currentUser, 'currentProfile:', currentProfile);
   const wrap = document.getElementById('navActions');
+  if(!wrap){ console.error('navActions element not found in DOM'); return; }
   const hamburger = wrap.querySelector('.hamburger');
   if(currentUser && currentProfile){
     const initial = (currentProfile.first_name || '?').charAt(0).toUpperCase();
@@ -147,16 +149,18 @@ function renderAuthUI(){
       </div>
       <button class="btn btn-ghost btn-sm" onclick="handleLogout()">Logout</button>
     `;
-    wrap.appendChild(hamburger);
+    if(hamburger) wrap.appendChild(hamburger);
   } else {
     wrap.innerHTML = `
       <button class="btn btn-ghost" onclick="openModal('login')">Devotee Login</button>
       <button class="btn btn-primary" onclick="openModal('signup')">Sign Up</button>
     `;
-    wrap.appendChild(hamburger);
+    if(hamburger) wrap.appendChild(hamburger);
   }
-  document.getElementById('adminSessionForm').style.display = (currentProfile && currentProfile.is_admin) ? 'block' : 'none';
-  document.getElementById('adminLessonForm').style.display = (currentProfile && currentProfile.is_admin) ? 'block' : 'none';
+  const sessionForm = document.getElementById('adminSessionForm');
+  const lessonForm = document.getElementById('adminLessonForm');
+  if(sessionForm) sessionForm.style.display = (currentProfile && currentProfile.is_admin) ? 'block' : 'none';
+  if(lessonForm) lessonForm.style.display = (currentProfile && currentProfile.is_admin) ? 'block' : 'none';
 }
 
 async function refreshSession(){
@@ -175,7 +179,12 @@ async function refreshSession(){
   renderLessons();
 }
 
-sb.auth.onAuthStateChange((_event, _session) => { /* handled via refreshSession on explicit actions */ });
+let authInitDone = false;
+sb.auth.onAuthStateChange((_event, session) => {
+  if(!authInitDone) return; // avoid double-firing during initial load, init() already handles that
+  currentUser = session?.user || null;
+  refreshSession();
+});
 
 /* ===================== DATA LOADING ===================== */
 async function loadSloka(){
@@ -439,5 +448,6 @@ revealEls.forEach(el=>io.observe(el));
 /* ===================== INIT ===================== */
 (async function init(){
   await refreshSession();
+  authInitDone = true;
   await Promise.all([ loadSloka(), loadLiveSessions(), loadChaptersAndLessons() ]);
 })();
