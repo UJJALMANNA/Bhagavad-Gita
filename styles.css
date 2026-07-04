@@ -61,6 +61,8 @@ nav{display:flex;align-items:center;justify-content:space-between;padding:16px 2
 .btn-primary:disabled{opacity:0.55;cursor:not-allowed;transform:none;box-shadow:none;}
 .btn-ghost{border-color:var(--line);color:var(--ivory);background:transparent;}
 .btn-ghost:hover{border-color:var(--gold);color:var(--gold-soft);}
+.btn-admin{border-color:var(--gold);color:var(--gold-soft);background:rgba(201,162,39,0.08);}
+.btn-admin:hover{background:rgba(201,162,39,0.16);box-shadow:0 0 0 1px var(--gold) inset;}
 .btn-sm{padding:8px 16px;font-size:0.82rem;}
 .hamburger{display:none;flex-direction:column;gap:5px;cursor:pointer;background:none;border:none;}
 .hamburger span{width:24px;height:2px;background:var(--ivory);}
