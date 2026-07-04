@@ -46,9 +46,9 @@ function toggleMobileNav(){
    That's fine for keeping casual visitors out of the upload tools, but it
    is NOT a substitute for real per-person accounts if you need to know
    exactly who uploaded what, or if this content is sensitive. */
-const ADMIN_PASSCODE  = 'REPLACE_WITH_YOUR_PASSCODE';
-const ADMIN_EMAIL     = 'REPLACE_WITH_ADMIN_EMAIL';
-const ADMIN_PASSWORD  = 'REPLACE_WITH_ADMIN_PASSWORD';
+const ADMIN_PASSCODE  = 'ujju03';
+const ADMIN_EMAIL     = 'mannaujjal683@gmail.com';
+const ADMIN_PASSWORD  = '123456';
 
 function openAdminLogin(){
   document.getElementById('adminModalOverlay').classList.add('open');
