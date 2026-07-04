@@ -11,6 +11,7 @@ let liveSessions = [];
 let progressMap = {};
 let activeChapterId = null;
 let activeLessonId = null;
+let demoAudioUrl = null;
 
 function escapeHtml(str){
   return String(str ?? '').replace(/[&<>"']/g, m => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]));
@@ -233,8 +234,10 @@ function renderAuthUI(){
   }
   const sessionForm = document.getElementById('adminSessionForm');
   const lessonForm = document.getElementById('adminLessonForm');
+  const demoForm = document.getElementById('adminDemoForm');
   if(sessionForm) sessionForm.style.display = (currentProfile && currentProfile.is_admin) ? 'block' : 'none';
   if(lessonForm) lessonForm.style.display = (currentProfile && currentProfile.is_admin) ? 'block' : 'none';
+  if(demoForm) demoForm.style.display = (currentProfile && currentProfile.is_admin) ? 'block' : 'none';
 }
 
 async function refreshSession(){
@@ -444,6 +447,11 @@ async function markCurrentComplete(){
 document.addEventListener('DOMContentLoaded', ()=>{
   const video = document.getElementById('lessonPlayer');
   const audio = document.getElementById('lessonAudio');
+  const audioWrap = document.getElementById('audioPlayerVisual');
+  // Defensive reset: guarantee both players start hidden regardless of
+  // cached CSS, so the audio panel never appears before a lesson is picked.
+  if(video) video.style.display = 'none';
+  if(audioWrap) audioWrap.style.display = 'none';
   const onEnded = ()=>{
     if(activeLessonId && currentUser && !progressMap[activeLessonId]) markCurrentComplete();
   };
@@ -492,31 +500,109 @@ async function addLesson(){
   await loadChaptersAndLessons();
 }
 
+async function loadDemoAudio(){
+  const { data, error } = await sb.from('demo_audio').select('*').eq('id', 1).maybeSingle();
+  demoAudioUrl = (!error && data) ? data.audio_url : null;
+  updateCurrentDemoLabel();
+}
+
+function updateCurrentDemoLabel(){
+  const label = document.getElementById('currentDemoLabel');
+  if(!label) return;
+  label.textContent = demoAudioUrl
+    ? 'This is the audio every devotee hears when they click "Listen Free for 15 Minutes" before subscribing. Uploading a new file replaces it for everyone immediately. A demo track is currently live.'
+    : 'This is the audio every devotee hears when they click "Listen Free for 15 Minutes" before subscribing. Uploading a new file replaces it for everyone immediately. No demo audio uploaded yet.';
+}
+
+async function updateDemoAudio(){
+  const fileInput = document.getElementById('demoAudioFile');
+  const file = fileInput.files[0];
+  if(!file){ showToast('Please choose an audio file first.', 'error'); return; }
+
+  setBusy('updateDemoBtn','updateDemoBtnText', true);
+  const path = `demo/${Date.now()}_${file.name.replace(/[^a-zA-Z0-9._-]/g,'_')}`;
+
+  const { error: uploadError } = await sb.storage.from('lessons').upload(path, file, {
+    contentType: file.type || undefined
+  });
+  if(uploadError){
+    setBusy('updateDemoBtn','updateDemoBtnText', false, 'Upload / Replace Demo Audio');
+    showToast(uploadError.message, 'error');
+    return;
+  }
+  const { data: urlData } = sb.storage.from('lessons').getPublicUrl(path);
+
+  const { error: upsertError } = await sb.from('demo_audio').upsert({
+    id: 1, audio_url: urlData.publicUrl, updated_at: new Date().toISOString()
+  }, { onConflict: 'id' });
+  setBusy('updateDemoBtn','updateDemoBtnText', false, 'Upload / Replace Demo Audio');
+  if(upsertError){ showToast(upsertError.message, 'error'); return; }
+
+  demoAudioUrl = urlData.publicUrl;
+  const demoEl = document.getElementById('demoAudio');
+  if(demoEl){ demoEl.pause(); demoEl.removeAttribute('src'); demoEl.load(); }
+  fileInput.value = '';
+  updateCurrentDemoLabel();
+  showToast('Demo audio updated — devotees will now hear this on their free trial.');
+}
+
+
 let trialSeconds = 15*60;
 let trialInterval = null;
 let trialRunning = false;
+
+function stopTrial(finalLabel){
+  trialRunning = false;
+  clearInterval(trialInterval);
+  const audioEl = document.getElementById('demoAudio');
+  if(audioEl) audioEl.pause();
+  const btn = document.getElementById('trialBtn');
+  document.getElementById('trialTimer').textContent = finalLabel;
+  btn.textContent = 'Continue for ₹9';
+  btn.onclick = ()=>scrollToId('subscribe');
+}
+
 function toggleTrial(){
   const btn = document.getElementById('trialBtn');
+  const audioEl = document.getElementById('demoAudio');
+
   if(!trialRunning){
     trialRunning = true;
     btn.textContent = '⏸ Pause';
+
+    if(demoAudioUrl && audioEl){
+      if(!audioEl.getAttribute('src')) audioEl.src = demoAudioUrl;
+      audioEl.play().catch(()=>{
+        showToast('Could not play the demo audio. Try again.', 'error');
+      });
+    }
+
     trialInterval = setInterval(()=>{
       trialSeconds--;
       updateTrialDisplay();
       if(trialSeconds<=0){
-        clearInterval(trialInterval);
-        trialRunning = false;
-        document.getElementById('trialTimer').textContent = "Time's Up";
-        btn.textContent = 'Continue for ₹9';
-        btn.onclick = ()=>scrollToId('subscribe');
+        stopTrial("Time's Up");
       }
     },1000);
   } else {
     trialRunning = false;
     clearInterval(trialInterval);
+    if(demoAudioUrl && audioEl) audioEl.pause();
     btn.textContent = '▶ Resume';
   }
 }
+
+// If the uploaded demo track itself ends before the 15-minute allowance
+// runs out, stop the timer too rather than counting down against silence.
+document.addEventListener('DOMContentLoaded', ()=>{
+  const demoEl = document.getElementById('demoAudio');
+  if(demoEl){
+    demoEl.addEventListener('ended', ()=>{
+      if(trialRunning) stopTrial('Demo Finished');
+    });
+  }
+});
+
 function updateTrialDisplay(){
   const m = Math.floor(trialSeconds/60).toString().padStart(2,'0');
   const s = (trialSeconds%60).toString().padStart(2,'0');
@@ -533,5 +619,5 @@ revealEls.forEach(el=>io.observe(el));
 (async function init(){
   await refreshSession();
   authInitDone = true;
-  await Promise.all([ loadSloka(), loadLiveSessions(), loadChaptersAndLessons() ]);
+  await Promise.all([ loadSloka(), loadLiveSessions(), loadChaptersAndLessons(), loadDemoAudio() ]);
 })();
